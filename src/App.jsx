@@ -19,33 +19,34 @@ function useWidth() {
 const GROUPS_LIST = ["A","B","C","D","E","F","G","H","I","J","K","L"];
 
 const TEAMS = {
-  "México":{code:"mx",emoji:"🇲🇽"},"África do Sul":{code:"za",emoji:"🇿🇦"},
-  "Coreia do Sul":{code:"kr",emoji:"🇰🇷"},"Rep. Tcheca":{code:"cz",emoji:"🇨🇿"},
-  "Canadá":{code:"ca",emoji:"🇨🇦"},"Bósnia e Herz.":{code:"ba",emoji:"🇧🇦"},
-  "Catar":{code:"qa",emoji:"🇶🇦"},"Suíça":{code:"ch",emoji:"🇨🇭"},
-  "Brasil":{code:"br",emoji:"🇧🇷"},"Marrocos":{code:"ma",emoji:"🇲🇦"},
-  "Haiti":{code:"ht",emoji:"🇭🇹"},"Escócia":{code:"gb-sct",emoji:"🏴󠁧󠁢󠁳󠁣󠁴󠁿"},
-  "Estados Unidos":{code:"us",emoji:"🇺🇸"},"Paraguai":{code:"py",emoji:"🇵🇾"},
-  "Austrália":{code:"au",emoji:"🇦🇺"},"Turquia":{code:"tr",emoji:"🇹🇷"},
-  "Alemanha":{code:"de",emoji:"🇩🇪"},"Curaçau":{code:"cw",emoji:"🇨🇼"},
-  "Costa do Marfim":{code:"ci",emoji:"🇨🇮"},"Equador":{code:"ec",emoji:"🇪🇨"},
-  "Holanda":{code:"nl",emoji:"🇳🇱"},"Japão":{code:"jp",emoji:"🇯🇵"},
-  "Suécia":{code:"se",emoji:"🇸🇪"},"Tunísia":{code:"tn",emoji:"🇹🇳"},
-  "Bélgica":{code:"be",emoji:"🇧🇪"},"Egito":{code:"eg",emoji:"🇪🇬"},
-  "Irã":{code:"ir",emoji:"🇮🇷"},"Nova Zelândia":{code:"nz",emoji:"🇳🇿"},
-  "Espanha":{code:"es",emoji:"🇪🇸"},"Cabo Verde":{code:"cv",emoji:"🇨🇻"},
-  "Arábia Saudita":{code:"sa",emoji:"🇸🇦"},"Uruguai":{code:"uy",emoji:"🇺🇾"},
-  "França":{code:"fr",emoji:"🇫🇷"},"Senegal":{code:"sn",emoji:"🇸🇳"},
-  "Iraque":{code:"iq",emoji:"🇮🇶"},"Noruega":{code:"no",emoji:"🇳🇴"},
-  "Argentina":{code:"ar",emoji:"🇦🇷"},"Argélia":{code:"dz",emoji:"🇩🇿"},
-  "Áustria":{code:"at",emoji:"🇦🇹"},"Jordânia":{code:"jo",emoji:"🇯🇴"},
-  "Portugal":{code:"pt",emoji:"🇵🇹"},"RD Congo":{code:"cd",emoji:"🇨🇩"},
-  "Uzbequistão":{code:"uz",emoji:"🇺🇿"},"Colômbia":{code:"co",emoji:"🇨🇴"},
-  "Inglaterra":{code:"gb-eng",emoji:"🏴󠁧󠁢󠁥󠁮󠁧󠁿"},"Croácia":{code:"hr",emoji:"🇭🇷"},
-  "Gana":{code:"gh",emoji:"🇬🇭"},"Panamá":{code:"pa",emoji:"🇵🇦"},
+  "México":{code:"mx",emoji:"🇲🇽",short:"México"},"África do Sul":{code:"za",emoji:"🇿🇦",short:"Áfr. Sul"},
+  "Coreia do Sul":{code:"kr",emoji:"🇰🇷",short:"Coreia S."},"Rep. Tcheca":{code:"cz",emoji:"🇨🇿",short:"R. Tcheca"},
+  "Canadá":{code:"ca",emoji:"🇨🇦",short:"Canadá"},"Bósnia e Herz.":{code:"ba",emoji:"🇧🇦",short:"Bósnia"},
+  "Catar":{code:"qa",emoji:"🇶🇦",short:"Catar"},"Suíça":{code:"ch",emoji:"🇨🇭",short:"Suíça"},
+  "Brasil":{code:"br",emoji:"🇧🇷",short:"Brasil"},"Marrocos":{code:"ma",emoji:"🇲🇦",short:"Marrocos"},
+  "Haiti":{code:"ht",emoji:"🇭🇹",short:"Haiti"},"Escócia":{code:"gb-sct",emoji:"🏴󠁧󠁢󠁳󠁣󠁴󠁿",short:"Escócia"},
+  "Estados Unidos":{code:"us",emoji:"🇺🇸",short:"EUA"},"Paraguai":{code:"py",emoji:"🇵🇾",short:"Paraguai"},
+  "Austrália":{code:"au",emoji:"🇦🇺",short:"Austrália"},"Turquia":{code:"tr",emoji:"🇹🇷",short:"Turquia"},
+  "Alemanha":{code:"de",emoji:"🇩🇪",short:"Alemanha"},"Curaçau":{code:"cw",emoji:"🇨🇼",short:"Curaçau"},
+  "Costa do Marfim":{code:"ci",emoji:"🇨🇮",short:"C. Marfim"},"Equador":{code:"ec",emoji:"🇪🇨",short:"Equador"},
+  "Holanda":{code:"nl",emoji:"🇳🇱",short:"Holanda"},"Japão":{code:"jp",emoji:"🇯🇵",short:"Japão"},
+  "Suécia":{code:"se",emoji:"🇸🇪",short:"Suécia"},"Tunísia":{code:"tn",emoji:"🇹🇳",short:"Tunísia"},
+  "Bélgica":{code:"be",emoji:"🇧🇪",short:"Bélgica"},"Egito":{code:"eg",emoji:"🇪🇬",short:"Egito"},
+  "Irã":{code:"ir",emoji:"🇮🇷",short:"Irã"},"Nova Zelândia":{code:"nz",emoji:"🇳🇿",short:"N. Zelândia"},
+  "Espanha":{code:"es",emoji:"🇪🇸",short:"Espanha"},"Cabo Verde":{code:"cv",emoji:"🇨🇻",short:"C. Verde"},
+  "Arábia Saudita":{code:"sa",emoji:"🇸🇦",short:"A. Saudita"},"Uruguai":{code:"uy",emoji:"🇺🇾",short:"Uruguai"},
+  "França":{code:"fr",emoji:"🇫🇷",short:"França"},"Senegal":{code:"sn",emoji:"🇸🇳",short:"Senegal"},
+  "Iraque":{code:"iq",emoji:"🇮🇶",short:"Iraque"},"Noruega":{code:"no",emoji:"🇳🇴",short:"Noruega"},
+  "Argentina":{code:"ar",emoji:"🇦🇷",short:"Argentina"},"Argélia":{code:"dz",emoji:"🇩🇿",short:"Argélia"},
+  "Áustria":{code:"at",emoji:"🇦🇹",short:"Áustria"},"Jordânia":{code:"jo",emoji:"🇯🇴",short:"Jordânia"},
+  "Portugal":{code:"pt",emoji:"🇵🇹",short:"Portugal"},"RD Congo":{code:"cd",emoji:"🇨🇩",short:"RD Congo"},
+  "Uzbequistão":{code:"uz",emoji:"🇺🇿",short:"Uzbequist."},"Colômbia":{code:"co",emoji:"🇨🇴",short:"Colômbia"},
+  "Inglaterra":{code:"gb-eng",emoji:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",short:"Inglaterra"},"Croácia":{code:"hr",emoji:"🇭🇷",short:"Croácia"},
+  "Gana":{code:"gh",emoji:"🇬🇭",short:"Gana"},"Panamá":{code:"pa",emoji:"🇵🇦",short:"Panamá"},
 };
 
 const flagUrl = (name) => { const t=TEAMS[name]; return t?`https://flagcdn.com/w40/${t.code}.png`:null; };
+const teamName = (name, desk) => { if(desk||!name) return name; const t=TEAMS[name]; return t?.short||name; };
 
 const GROUP_TEAMS = {
   A:["México","África do Sul","Coreia do Sul","Rep. Tcheca"],
@@ -409,7 +410,7 @@ function GroupCard({group, standings, scores, onScore, expanded, onToggle, compl
         {teams.map(t=>(
           <div key={t} style={{display:"flex",alignItems:"center",gap:5,padding:isDesk?"5px 10px":"4px 8px",background:"#1a2235",borderRadius:8,flexShrink:0}}>
             <Flag team={t} size={isDesk?26:22}/>
-            <span style={{fontFamily:"DM Sans",fontSize:11*f,fontWeight:600,color:"#cbd5e0"}}>{t}</span>
+            <span style={{fontFamily:"DM Sans",fontSize:11*f,fontWeight:600,color:"#cbd5e0"}}>{teamName(t,isDesk)}</span>
           </div>
         ))}
       </div>
@@ -428,7 +429,7 @@ function GroupCard({group, standings, scores, onScore, expanded, onToggle, compl
               <tr key={t.team} style={{background:q?"rgba(72,187,120,0.08)":third?"rgba(236,201,75,0.05)":"transparent"}}>
                 <td style={{padding:"6px 4px",textAlign:"left",paddingLeft:6,color:"#cbd5e0"}}>
                   <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:18,height:18,borderRadius:4,fontSize:10,fontWeight:900,marginRight:4,background:q?"#48bb78":third?"#ecc94b":"#4a5568",color:q||third?"#1a202c":"#a0aec0"}}>{i+1}</span>
-                  <Flag team={t.team} size={16}/><span style={{fontWeight:700,fontSize:12*f,marginLeft:5}}>{t.team}</span>
+                  <Flag team={t.team} size={16}/><span style={{fontWeight:700,fontSize:12*f,marginLeft:5}}>{teamName(t.team,isDesk)}</span>
                 </td>
                 {[t.p,t.w,t.d,t.l,t.gf,t.ga].map((v,vi)=><td key={vi} style={{padding:"6px 4px",textAlign:"center",color:"#cbd5e0"}}>{v}</td>)}
                 <td style={{padding:"6px 4px",textAlign:"center",color:t.gd>0?"#48bb78":t.gd<0?"#fc8181":"#718096"}}>{t.gd>0?"+":""}{t.gd}</td>
@@ -458,15 +459,15 @@ function GroupCard({group, standings, scores, onScore, expanded, onToggle, compl
                 <div key={idx} style={{opacity:dimmed?0.3:1,transition:"opacity .2s"}}>
                   <div onClick={()=>onToggle(key)} style={{display:"flex",alignItems:"center",padding:isDesk?"10px 12px":"8px 10px",cursor:"pointer",borderBottom:"1px solid #1a2235",background:highlighted?(filter==="brazil"?"rgba(72,187,120,0.06)":"rgba(237,137,54,0.06)"):"transparent"}}>
                     {highlighted&&<div style={{width:3,height:28,borderRadius:2,background:filter==="brazil"?"#48bb78":"#ed8936",marginRight:6,flexShrink:0}}/>}
-                    <div style={{width:isDesk?64:52,flexShrink:0,textAlign:"center"}}>
+                    <div style={{width:isDesk?64:44,flexShrink:0,textAlign:"center"}}>
                       <span style={{display:"block",fontFamily:"Sora",fontSize:10*f,fontWeight:700,color:"#a0aec0"}}>{m.d}</span>
                       <span style={{display:"block",fontFamily:"DM Sans",fontSize:10*f,color:"#ecc94b",fontWeight:600}}>{m.t}</span>
                     </div>
-                    <div style={{width:isDesk?110:80,flexShrink:0,fontFamily:"DM Sans",fontSize:10*f,color:"#718096",textAlign:"center",padding:"0 4px"}}>{m.c}</div>
+                    <div style={{width:isDesk?110:60,flexShrink:0,fontFamily:"DM Sans",fontSize:isDesk?10*f:9,color:"#718096",textAlign:"center",padding:"0 2px"}}>{m.c}</div>
                     <div style={{flex:1,display:"flex",alignItems:"center"}}>
                       <div style={{flex:1,display:"flex",alignItems:"center",gap:5,justifyContent:"flex-end",fontFamily:"DM Sans",fontSize:fnSz,fontWeight:hWin?800:500,color:hWin?"#48bb78":"#e2e8f0",overflow:"hidden"}}>
                         {rankH&&<RankBadge rank={rankH}/>}
-                        <span style={{whiteSpace:"nowrap"}}>{m.h}</span><Flag team={m.h} size={isDesk?18:16}/>
+                        <span style={{whiteSpace:"nowrap"}}>{teamName(m.h,isDesk)}</span><Flag team={m.h} size={isDesk?18:16}/>
                       </div>
                       <div style={{display:"flex",alignItems:"center",gap:3,flexShrink:0,margin:"0 5px"}}>
                         <input value={s.h} onClick={e=>e.stopPropagation()} onChange={e=>{e.stopPropagation();onScore(idx,"h",e.target.value);}} style={{width:inSz,height:inSz,borderRadius:6,border:"1.5px solid #2d3748",background:"#0f1319",color:"#ecc94b",textAlign:"center",fontFamily:"Sora",fontWeight:800,fontSize:14*f,outline:"none"}} placeholder="–" maxLength={2} inputMode="numeric"/>
@@ -474,7 +475,7 @@ function GroupCard({group, standings, scores, onScore, expanded, onToggle, compl
                         <input value={s.a} onClick={e=>e.stopPropagation()} onChange={e=>{e.stopPropagation();onScore(idx,"a",e.target.value);}} style={{width:inSz,height:inSz,borderRadius:6,border:"1.5px solid #2d3748",background:"#0f1319",color:"#ecc94b",textAlign:"center",fontFamily:"Sora",fontWeight:800,fontSize:14*f,outline:"none"}} placeholder="–" maxLength={2} inputMode="numeric"/>
                       </div>
                       <div style={{flex:1,display:"flex",alignItems:"center",gap:5,justifyContent:"flex-start",fontFamily:"DM Sans",fontSize:fnSz,fontWeight:aWin?800:500,color:aWin?"#48bb78":"#e2e8f0",overflow:"hidden"}}>
-                        <Flag team={m.a} size={isDesk?18:16}/><span style={{whiteSpace:"nowrap"}}>{m.a}</span>
+                        <Flag team={m.a} size={isDesk?18:16}/><span style={{whiteSpace:"nowrap"}}>{teamName(m.a,isDesk)}</span>
                         {rankA&&<RankBadge rank={rankA}/>}
                       </div>
                     </div>
@@ -531,7 +532,7 @@ function BracketView({allSt, qt, koScores, onKoScore, isDesk, isWide, filter}) {
         {[{team:ht,label:ko.hs,win:hWin,side:"h"},{team:at,label:ko.as,win:aWin,side:"a"}].map((row,ri)=>(
           <div key={ri} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:isDesk?"9px 16px":"6px 10px",background:row.win?"rgba(72,187,120,0.08)":"transparent",borderTop:ri?"1px solid rgba(255,255,255,0.04)":"none"}}>
             <div style={{display:"flex",alignItems:"center",gap:7,fontFamily:"DM Sans",fontSize:13*f,color:"#e2e8f0"}}>
-              {row.team?<><Flag team={row.team} size={isDesk?22:18}/><span style={{fontWeight:row.win?800:500}}>{row.team}</span></>:
+              {row.team?<><Flag team={row.team} size={isDesk?22:18}/><span style={{fontWeight:row.win?800:500}}>{teamName(row.team,isDesk)}</span></>:
                 <span style={{color:"#4a5568",fontSize:11,fontStyle:"italic"}}>{labelToText(row.label)}</span>}
             </div>
             {hasTeams?
@@ -620,12 +621,12 @@ function CalendarView({scores, koScores, allSt, qt, isDesk, isWide, filter}) {
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{display:"flex",alignItems:"center",gap:6,fontFamily:"DM Sans",fontSize:13*f,flexWrap:"wrap"}}>
                         {mBig&&highlighted&&<span style={{fontSize:11,flexShrink:0}}>🔥</span>}
-                        {m.h?<span style={{display:"flex",alignItems:"center",gap:4,fontWeight:hWin?800:500,color:hWin?"#48bb78":"#e2e8f0"}}><Flag team={m.h} size={isDesk?18:14}/>{m.h}{isRanked(m.h)&&<RankBadge rank={FIFA_RANKING[m.h]}/>}</span>:
+                        {m.h?<span style={{display:"flex",alignItems:"center",gap:4,fontWeight:hWin?800:500,color:hWin?"#48bb78":"#e2e8f0"}}><Flag team={m.h} size={isDesk?18:14}/>{teamName(m.h,isDesk)}{isRanked(m.h)&&<RankBadge rank={FIFA_RANKING[m.h]}/>}</span>:
                           <span style={{color:"#718096",fontSize:12,fontStyle:"italic"}}>{isKo?labelToText(m.hLabel):"?"}</span>}
                         <span style={{fontFamily:"Sora",fontSize:12*f,color:"#ecc94b",flexShrink:0}}>
                           {hasScore?<span style={{fontWeight:800}}>{m.sh} × {m.sa}</span>:<span style={{color:"#4a5568"}}>×</span>}
                         </span>
-                        {m.a?<span style={{display:"flex",alignItems:"center",gap:4,fontWeight:aWin?800:500,color:aWin?"#48bb78":"#e2e8f0"}}><Flag team={m.a} size={isDesk?18:14}/>{m.a}{isRanked(m.a)&&<RankBadge rank={FIFA_RANKING[m.a]}/>}</span>:
+                        {m.a?<span style={{display:"flex",alignItems:"center",gap:4,fontWeight:aWin?800:500,color:aWin?"#48bb78":"#e2e8f0"}}><Flag team={m.a} size={isDesk?18:14}/>{teamName(m.a,isDesk)}{isRanked(m.a)&&<RankBadge rank={FIFA_RANKING[m.a]}/>}</span>:
                           <span style={{color:"#718096",fontSize:12,fontStyle:"italic"}}>{isKo?labelToText(m.aLabel):"?"}</span>}
                       </div>
                       <div style={{display:"flex",alignItems:"center",gap:6,marginTop:3}}>
