@@ -321,7 +321,10 @@ input  { font-family: inherit; }
   background: #0a1020;
   padding: 0 16px;
   gap: 2px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
+.main-nav::-webkit-scrollbar { display: none; }
 .main-tab {
   padding: 14px 18px;
   font-family: var(--f-display);

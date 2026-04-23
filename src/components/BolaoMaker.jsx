@@ -76,11 +76,9 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
   const predFilled = Object.keys(bScores).length;
   const totalMatches = GM.length + Object.keys(KO).length;
 
-  // Renders a mini score input row for a match
   const renderPredRow = (label, predH, predA, onH, onA, result, detail) => {
     const inSz = isDesk ? 30 : 26;
     const hasActual = result?.h !== "" && result?.h !== undefined;
-    const h = predH, a = predA;
     const typeColor = detail?.type === "exact" ? "#48bb78" : detail?.type === "result" ? "#ecc94b" : detail?.type === "wrong" ? "#fc8181" : "var(--border)";
     const typeLabel = detail?.type === "exact" ? "+3" : detail?.type === "result" ? "+1" : detail?.type === "wrong" ? "✗" : "";
 
@@ -89,21 +87,21 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
         {detail && (
           <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: typeColor, borderRadius: "3px 0 0 3px" }} />
         )}
-        <div style={{ flex: 1, fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div style={{ flex: 1, fontFamily: "var(--f-body)", fontSize: 12, color: "var(--t2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {label}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 3, flexShrink: 0 }}>
-          <input className="score-input" value={h} onChange={e => onH(e.target.value)} style={{ width: inSz, height: inSz, fontSize: 12 }} placeholder="–" maxLength={2} inputMode="numeric" />
-          <span style={{ color: "var(--text-dim)", fontSize: 10 }}>×</span>
-          <input className="score-input" value={a} onChange={e => onA(e.target.value)} style={{ width: inSz, height: inSz, fontSize: 12 }} placeholder="–" maxLength={2} inputMode="numeric" />
+          <input className="score-input" value={predH} onChange={e => onH(e.target.value)} style={{ width: inSz, height: inSz, fontSize: 12 }} placeholder="–" maxLength={2} inputMode="numeric" />
+          <span style={{ color: "var(--t3)", fontSize: 10 }}>×</span>
+          <input className="score-input" value={predA} onChange={e => onA(e.target.value)} style={{ width: inSz, height: inSz, fontSize: 12 }} placeholder="–" maxLength={2} inputMode="numeric" />
         </div>
         {hasActual && (
-          <div style={{ flexShrink: 0, fontSize: 10, color: "var(--text-muted)", width: 40, textAlign: "right" }}>
+          <div style={{ flexShrink: 0, fontSize: 10, color: "var(--t3)", width: 40, textAlign: "right" }}>
             {result.h}×{result.a}
           </div>
         )}
         {typeLabel && (
-          <div style={{ flexShrink: 0, fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 11, color: typeColor, width: 24, textAlign: "center" }}>
+          <div style={{ flexShrink: 0, fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 11, color: typeColor, width: 24, textAlign: "center" }}>
             {typeLabel}
           </div>
         )}
@@ -111,23 +109,23 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
     );
   };
 
-  // ─── LANDING ─────────────────────────────────────────────────────────────
+  // ─── LANDING ──────────────────────────────────────────────────────────────
   if (view === "landing") {
     return (
       <div style={{ maxWidth: 680, margin: "0 auto", padding: isDesk ? "32px 0" : "16px 0" }}>
         <div className="card" style={{ padding: isDesk ? "40px" : "24px 20px", textAlign: "center" }}>
           <div style={{ fontSize: 56 }}>🎯</div>
-          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: isDesk ? 28 : 22, color: "var(--text-primary)", margin: "12px 0 8px" }}>Bolão Copa 2026</h2>
-          <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--text-muted)", lineHeight: 1.6, marginBottom: 24 }}>
+          <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 900, fontSize: isDesk ? 28 : 22, color: "var(--t1)", margin: "12px 0 8px" }}>Bolão Copa 2026</h2>
+          <p style={{ fontFamily: "var(--f-body)", fontSize: 14, color: "var(--t3)", lineHeight: 1.6, marginBottom: 24 }}>
             Faça seus palpites para todos os jogos, compartilhe com os amigos e veja quem acerta mais.
           </p>
 
           <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 32 }}>
             {SCORING_INFO.map(s => (
               <div key={s.label} style={{ padding: "10px 16px", borderRadius: 10, background: s.color + "18", border: `1px solid ${s.color}44`, textAlign: "center", minWidth: 110 }}>
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 22, color: s.color }}>{s.icon}</div>
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 20, color: s.color }}>{s.points} {s.points !== 0 ? "pt" + (s.points > 1 ? "s" : "") : ""}</div>
-                <div style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{s.label}</div>
+                <div style={{ fontFamily: "var(--f-display)", fontWeight: 900, fontSize: 22, color: s.color }}>{s.icon}</div>
+                <div style={{ fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 20, color: s.color }}>{s.points}{s.points !== 0 ? " pt" + (s.points > 1 ? "s" : "") : ""}</div>
+                <div style={{ fontFamily: "var(--f-body)", fontSize: 11, color: "var(--t3)", marginTop: 2 }}>{s.label}</div>
               </div>
             ))}
           </div>
@@ -135,13 +133,13 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
             <button
               onClick={() => setView("create")}
-              style={{ padding: "12px 28px", borderRadius: 10, border: "none", background: "var(--accent)", color: "#0f1319", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 15, cursor: "pointer" }}
+              style={{ padding: "12px 28px", borderRadius: 10, border: "none", background: "var(--gold)", color: "#070b15", fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 15, cursor: "pointer" }}
             >
               Criar Meu Bolão
             </button>
             <button
               onClick={() => setView("import")}
-              style={{ padding: "12px 24px", borderRadius: 10, border: "1px solid var(--border)", background: "transparent", color: "var(--text-secondary)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+              style={{ padding: "12px 24px", borderRadius: 10, border: "1px solid var(--border)", background: "transparent", color: "var(--t2)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
             >
               Importar Código
             </button>
@@ -159,23 +157,23 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
     return (
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
         {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
-          <button onClick={() => setView("landing")} style={{ padding: "6px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--text-muted)", cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13 }}>← Voltar</button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
+          <button onClick={() => setView("landing")} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--t3)", cursor: "pointer", fontFamily: "var(--f-body)", fontSize: 13, flexShrink: 0 }}>← Voltar</button>
           <input
             value={bolaoName}
             onChange={e => setBolaoName(e.target.value)}
             placeholder="Seu nome / apelido..."
-            style={{ flex: 1, minWidth: 140, padding: "8px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--bg-secondary)", color: "var(--text-primary)", fontFamily: "var(--font-body)", fontSize: 14, outline: "none" }}
+            style={{ flex: 1, minWidth: 100, padding: "8px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--bg-input)", color: "var(--t1)", fontFamily: "var(--f-body)", fontSize: 13, outline: "none" }}
           />
           <button
             onClick={saveBolaoData}
-            style={{ padding: "8px 20px", borderRadius: 8, border: "none", background: "var(--accent)", color: "#0f1319", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 14, cursor: "pointer", flexShrink: 0 }}
+            style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "var(--gold)", color: "#070b15", fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 13, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}
           >
-            Salvar Bolão
+            Salvar ✓
           </button>
         </div>
 
-        <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)", marginBottom: 10 }}>
+        <div style={{ fontFamily: "var(--f-body)", fontSize: 12, color: "var(--t3)", marginBottom: 10 }}>
           Palpites: {predFilled}/{totalMatches} · <span style={{ color: "var(--green)" }}>Coluna direita mostra o resultado real (quando disponível)</span>
         </div>
 
@@ -185,14 +183,14 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
             <button
               key={g}
               onClick={() => setCreateTab(g)}
-              style={{ padding: "5px 12px", borderRadius: 8, border: createTab === g ? "1.5px solid var(--accent)" : "1px solid var(--border)", background: createTab === g ? "var(--accent-dim)" : "transparent", color: createTab === g ? "var(--accent)" : "var(--text-muted)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, cursor: "pointer", flexShrink: 0 }}
+              style={{ padding: "5px 12px", borderRadius: 8, border: createTab === g ? "1.5px solid var(--gold)" : "1px solid var(--border)", background: createTab === g ? "rgba(240,201,58,0.12)" : "transparent", color: createTab === g ? "var(--gold)" : "var(--t3)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 13, cursor: "pointer", flexShrink: 0 }}
             >
               {g}
             </button>
           ))}
           <button
             onClick={() => setCreateTab("ko")}
-            style={{ padding: "5px 12px", borderRadius: 8, border: createTab === "ko" ? "1.5px solid var(--blue)" : "1px solid var(--border)", background: createTab === "ko" ? "rgba(91,155,213,0.12)" : "transparent", color: createTab === "ko" ? "var(--blue)" : "var(--text-muted)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, cursor: "pointer", flexShrink: 0 }}
+            style={{ padding: "5px 12px", borderRadius: 8, border: createTab === "ko" ? "1.5px solid var(--blue)" : "1px solid var(--border)", background: createTab === "ko" ? "rgba(79,142,247,0.12)" : "transparent", color: createTab === "ko" ? "var(--blue)" : "var(--t3)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 13, cursor: "pointer", flexShrink: 0 }}
           >
             Mata-mata
           </button>
@@ -202,14 +200,14 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
           {!isKoTab ? (
             <>
               <div style={{ padding: "10px 14px 6px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 20, color: "var(--accent)" }}>{createTab}</span>
-                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, color: "var(--text-secondary)" }}>Grupo {createTab}</span>
+                <span style={{ fontFamily: "var(--f-display)", fontWeight: 900, fontSize: 20, color: "var(--gold)" }}>{createTab}</span>
+                <span style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 13, color: "var(--t2)" }}>Grupo {createTab}</span>
                 <div style={{ flex: 1 }} />
-                <span style={{ fontFamily: "var(--font-body)", fontSize: 10, color: "var(--text-dim)" }}>Seu palpite · Real</span>
+                <span style={{ fontFamily: "var(--f-body)", fontSize: 10, color: "var(--t3)" }}>Seu palpite · Real</span>
               </div>
               {[1, 2, 3].map(round => (
                 <div key={round}>
-                  <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 9, color: "var(--text-dim)", letterSpacing: 1.5, textTransform: "uppercase", padding: "6px 12px 3px", borderTop: "1px solid var(--border)" }}>
+                  <div style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 9, color: "var(--t3)", letterSpacing: 1.5, textTransform: "uppercase", padding: "6px 12px 3px", borderTop: "1px solid var(--border)" }}>
                     {round}ª Rodada
                   </div>
                   {groupMatches.filter(m => m.r === round).map(m => {
@@ -231,13 +229,13 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
           ) : (
             <>
               <div style={{ padding: "10px 14px 6px", borderBottom: "1px solid var(--border)" }}>
-                <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 13, color: "var(--text-secondary)" }}>Mata-mata — insira placares previstos</span>
+                <span style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 13, color: "var(--t2)" }}>Mata-mata — insira placares previstos</span>
               </div>
               {ROUND_ORDER.map(rn => {
                 const mns = Object.keys(KO).filter(k => KO[k].rn === rn).map(Number).sort((a, b) => a - b);
                 return (
                   <div key={rn}>
-                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 9, letterSpacing: 1.5, textTransform: "uppercase", padding: "6px 12px 3px", borderTop: "1px solid var(--border)", color: RC[rn] }}>
+                    <div style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 9, letterSpacing: 1.5, textTransform: "uppercase", padding: "6px 12px 3px", borderTop: "1px solid var(--border)", color: RC[rn] }}>
                       {rn}
                     </div>
                     {mns.map(mn => {
@@ -275,16 +273,16 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
         {/* Header Row */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: isDesk ? 22 : 18, color: "var(--text-primary)", flex: 1 }}>
+          <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 900, fontSize: isDesk ? 22 : 18, color: "var(--t1)", flex: 1 }}>
             🎯 {bolaoName || "Meu Bolão"}
           </h2>
-          <button onClick={() => setView("create")} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--accent)", background: "var(--accent-dim)", color: "var(--accent)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+          <button onClick={() => setView("create")} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(240,201,58,0.4)", background: "rgba(240,201,58,0.1)", color: "var(--gold)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
             Editar Palpites
           </button>
-          <button onClick={handleExport} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: copied ? "var(--green)" : "var(--text-secondary)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+          <button onClick={handleExport} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: copied ? "var(--green)" : "var(--t2)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
             {copied ? "✓ Copiado!" : "Exportar Código"}
           </button>
-          <button onClick={() => setView("import")} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--text-muted)", fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+          <button onClick={() => setView("import")} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--t3)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
             Importar Adversário
           </button>
         </div>
@@ -292,15 +290,15 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
         {/* Score Cards */}
         <div style={{ display: "grid", gridTemplateColumns: isDesk ? "repeat(4, 1fr)" : "repeat(2, 1fr)", gap: 10, marginBottom: 20 }}>
           {[
-            { label: "Pontos", value: totalEarned, sub: `/ ${totalPossible} possíveis`, color: "var(--accent)" },
-            { label: "Aproveitamento", value: `${accuracy}%`, sub: `${totalPossible} jogos`, color: "#5b9bd5" },
+            { label: "Pontos", value: totalEarned, sub: `/ ${totalPossible} possíveis`, color: "var(--gold)" },
+            { label: "Aproveitamento", value: `${accuracy}%`, sub: `${totalPossible} jogos`, color: "var(--blue)" },
             { label: "Placares Exatos", value: exactCount, sub: "+3 pts cada", color: "var(--green)" },
-            { label: "Resultados Certos", value: resultCount, sub: "+1 pt cada", color: "#ed8936" },
+            { label: "Resultados Certos", value: resultCount, sub: "+1 pt cada", color: "var(--orange)" },
           ].map(c => (
             <div key={c.label} className="card" style={{ padding: "14px 16px", textAlign: "center" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: isDesk ? 28 : 22, color: c.color }}>{c.value}</div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>{c.label}</div>
-              <div style={{ fontFamily: "var(--font-body)", fontSize: 10, color: "var(--text-muted)", marginTop: 1 }}>{c.sub}</div>
+              <div style={{ fontFamily: "var(--f-display)", fontWeight: 900, fontSize: isDesk ? 28 : 22, color: c.color }}>{c.value}</div>
+              <div style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 11, color: "var(--t2)", marginTop: 2 }}>{c.label}</div>
+              <div style={{ fontFamily: "var(--f-body)", fontSize: 10, color: "var(--t3)", marginTop: 1 }}>{c.sub}</div>
             </div>
           ))}
         </div>
@@ -309,19 +307,19 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
         {importedBolao && importedPoints && (
           <div className="card" style={{ marginBottom: 16, padding: "14px 18px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-              <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 14, color: "var(--text-primary)" }}>
+              <span style={{ fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 14, color: "var(--t1)" }}>
                 vs. {importedBolao.name || "Adversário"}
               </span>
               <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--accent)" }}>
+                <span style={{ fontFamily: "var(--f-body)", fontSize: 13, color: "var(--gold)" }}>
                   Você: <strong>{totalEarned} pts</strong>
                 </span>
-                <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: totalEarned >= importedPoints.earned ? "var(--green)" : "var(--red)" }}>
+                <span style={{ fontFamily: "var(--f-body)", fontSize: 13, color: totalEarned >= importedPoints.earned ? "var(--green)" : "var(--red)" }}>
                   {importedBolao.name}: <strong>{importedPoints.earned} pts</strong>
                   {totalEarned > importedPoints.earned ? " — você está na frente! 🏆" : totalEarned < importedPoints.earned ? " — ele está na frente! 😅" : " — empate!"}
                 </span>
               </div>
-              <button onClick={() => setImportedBolao(null)} style={{ marginLeft: "auto", background: "transparent", border: "none", color: "var(--text-dim)", cursor: "pointer", fontSize: 16 }}>✕</button>
+              <button onClick={() => setImportedBolao(null)} style={{ marginLeft: "auto", background: "transparent", border: "none", color: "var(--t3)", cursor: "pointer", fontSize: 16 }}>✕</button>
             </div>
           </div>
         )}
@@ -343,10 +341,10 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
             return (
               <div key={g} className="card" style={{ padding: "10px 14px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                  <span style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 18, color: "var(--accent)" }}>{g}</span>
-                  <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--text-muted)" }}>Grupo {g}</span>
+                  <span style={{ fontFamily: "var(--f-display)", fontWeight: 900, fontSize: 18, color: "var(--gold)" }}>{g}</span>
+                  <span style={{ fontFamily: "var(--f-body)", fontSize: 12, color: "var(--t3)" }}>Grupo {g}</span>
                   <div style={{ flex: 1 }} />
-                  <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 14, color: gEarned > 0 ? "var(--green)" : "var(--text-muted)" }}>
+                  <span style={{ fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 14, color: gEarned > 0 ? "var(--green)" : "var(--t3)" }}>
                     {gEarned}/{gPossible} pts
                   </span>
                 </div>
@@ -357,16 +355,16 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
                   const detail = groupPoints.details[idx];
                   const hasPred = pred.h !== "" && pred.a !== "";
                   const hasActual = actual.h !== "" && actual.a !== "";
-                  const dotColor = detail ? (detail.type === "exact" ? "#48bb78" : detail.type === "result" ? "#ecc94b" : "#fc8181") : (hasPred ? "var(--text-dim)" : "var(--border)");
+                  const dotColor = detail ? (detail.type === "exact" ? "#48bb78" : detail.type === "result" ? "#ecc94b" : "#fc8181") : (hasPred ? "var(--t3)" : "var(--border)");
 
                   return (
-                    <div key={idx} style={{ display: "flex", alignItems: "center", gap: 6, padding: "3px 0", fontFamily: "var(--font-body)", fontSize: 11, color: "var(--text-secondary)" }}>
+                    <div key={idx} style={{ display: "flex", alignItems: "center", gap: 6, padding: "3px 0", fontFamily: "var(--f-body)", fontSize: 11, color: "var(--t2)" }}>
                       <div style={{ width: 7, height: 7, borderRadius: "50%", background: dotColor, flexShrink: 0 }} />
                       <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {teamName(m.h, isDesk)} × {teamName(m.a, isDesk)}
                       </span>
-                      {hasPred && <span style={{ color: "var(--accent)", fontWeight: 700, flexShrink: 0 }}>{pred.h}×{pred.a}</span>}
-                      {hasActual && hasPred && <span style={{ color: "var(--text-muted)", flexShrink: 0, fontSize: 10 }}>({actual.h}×{actual.a})</span>}
+                      {hasPred && <span style={{ color: "var(--gold)", fontWeight: 700, flexShrink: 0 }}>{pred.h}×{pred.a}</span>}
+                      {hasActual && hasPred && <span style={{ color: "var(--t3)", flexShrink: 0, fontSize: 10 }}>({actual.h}×{actual.a})</span>}
                     </div>
                   );
                 })}
@@ -383,42 +381,42 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
     return (
       <div style={{ maxWidth: 640, margin: "0 auto", padding: isDesk ? "24px 0" : "12px 0" }}>
         <div className="card" style={{ padding: isDesk ? "32px" : "20px" }}>
-          <button onClick={() => setView(bolaoName ? "my-bolao" : "landing")} style={{ padding: "5px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--text-muted)", cursor: "pointer", fontFamily: "var(--font-body)", fontSize: 13, marginBottom: 20 }}>
+          <button onClick={() => setView(bolaoName ? "my-bolao" : "landing")} style={{ padding: "5px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--t3)", cursor: "pointer", fontFamily: "var(--f-body)", fontSize: 13, marginBottom: 20 }}>
             ← Voltar
           </button>
-          <h3 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 18, color: "var(--text-primary)", marginBottom: 8 }}>Importar Bolão de um Amigo</h3>
-          <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}>
+          <h3 style={{ fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 18, color: "var(--t1)", marginBottom: 8 }}>Importar Bolão de um Amigo</h3>
+          <p style={{ fontFamily: "var(--f-body)", fontSize: 13, color: "var(--t3)", marginBottom: 16 }}>
             Cole o código do bolão do seu adversário para comparar pontuações.
           </p>
           <textarea
             value={importText}
             onChange={e => setImportText(e.target.value)}
             placeholder="Cole o código aqui..."
-            style={{ width: "100%", minHeight: 100, padding: "10px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--bg-secondary)", color: "var(--text-primary)", fontFamily: "var(--font-body)", fontSize: 13, resize: "vertical", outline: "none", marginBottom: 8 }}
+            style={{ width: "100%", minHeight: 100, padding: "10px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--bg-input)", color: "var(--t1)", fontFamily: "var(--f-body)", fontSize: 13, resize: "vertical", outline: "none", marginBottom: 8 }}
           />
           {importError && (
-            <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "var(--red)", marginBottom: 8 }}>{importError}</div>
+            <div style={{ fontFamily: "var(--f-body)", fontSize: 12, color: "var(--red)", marginBottom: 8 }}>{importError}</div>
           )}
           <button
             onClick={handleImport}
-            style={{ padding: "10px 24px", borderRadius: 8, border: "none", background: "var(--accent)", color: "#0f1319", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 14, cursor: "pointer" }}
+            style={{ padding: "10px 24px", borderRadius: 8, border: "none", background: "var(--gold)", color: "#070b15", fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 14, cursor: "pointer" }}
           >
             Importar
           </button>
 
           {importedBolao && (
-            <div style={{ marginTop: 20, padding: "14px", background: "rgba(72,187,120,0.08)", borderRadius: 8, border: "1px solid var(--green)" }}>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 15, color: "var(--green)", marginBottom: 4 }}>
+            <div style={{ marginTop: 20, padding: "14px", background: "rgba(34,197,94,0.08)", borderRadius: 8, border: "1px solid var(--green)" }}>
+              <div style={{ fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 15, color: "var(--green)", marginBottom: 4 }}>
                 ✓ Bolão importado: {importedBolao.name || "Sem nome"}
               </div>
               {importedPoints && (
-                <div style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--text-secondary)" }}>
-                  Pontuação atual: <strong style={{ color: "var(--accent)" }}>{importedPoints.earned}</strong> pts de {importedPoints.possible} possíveis
+                <div style={{ fontFamily: "var(--f-body)", fontSize: 13, color: "var(--t2)" }}>
+                  Pontuação atual: <strong style={{ color: "var(--gold)" }}>{importedPoints.earned}</strong> pts de {importedPoints.possible} possíveis
                 </div>
               )}
               <button
                 onClick={() => setView("my-bolao")}
-                style={{ marginTop: 12, padding: "8px 18px", borderRadius: 8, border: "none", background: "var(--green)", color: "#0f1319", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 13, cursor: "pointer" }}
+                style={{ marginTop: 12, padding: "8px 18px", borderRadius: 8, border: "none", background: "var(--green)", color: "#070b15", fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 13, cursor: "pointer" }}
               >
                 Ver Comparação
               </button>
