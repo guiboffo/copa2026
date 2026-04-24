@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 import "./styles.css";
 
 import { useWidth } from "./hooks/useWidth.js";
-import { GROUPS_LIST, GROUP_TEAMS, isBigMatch } from "./data/teams.js";
+import { GROUPS_LIST, GROUP_TEAMS, TEAMS, isBigMatch } from "./data/teams.js";
 import { GM } from "./data/matches.js";
 import { computeStandings, getQualifiedThirds } from "./utils/standings.js";
 import { load, save } from "./utils/storage.js";
@@ -74,14 +74,14 @@ export default function App() {
     <div style={{ fontFamily: "var(--f-body)", background: "var(--bg-base)", minHeight: "100vh", color: "var(--t1)", maxWidth: maxW, margin: "0 auto" }}>
 
       {/* ── HEADER ─────────────────────────────────────── */}
-      <header style={{
-        background: "linear-gradient(180deg, #0d1526 0%, #070b15 100%)",
+      <header className="app-header" style={{
+        background: "linear-gradient(180deg, #0c1830 0%, var(--bg-base) 100%)",
         borderBottom: "1px solid var(--border)",
         position: "sticky", top: 0, zIndex: 50,
-        boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
+        boxShadow: "0 4px 32px rgba(0,0,0,0.55)",
       }}>
-        {/* gold top line */}
-        <div style={{ height: 3, background: "linear-gradient(90deg, transparent, var(--gold), transparent)" }} />
+        {/* tri-nation top bar: Canada · USA · Mexico */}
+        <div style={{ height: 3, background: "linear-gradient(90deg, var(--red) 0%, var(--blue) 50%, var(--green) 100%)" }} />
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: isDesk ? "14px 28px" : "12px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: isDesk ? 16 : 12 }}>
             {/* FIFA badge */}
@@ -132,32 +132,54 @@ export default function App() {
       </nav>
 
       {/* ── FILTER BAR ────────────────────────────────── */}
-      {mainTab !== "bolao" && (
-        <div className="filter-bar">
-          {[
-            { id: "all",    label: "Todos",         emoji: "",   cls: "" },
-            { id: "brazil", label: "Brasil",         emoji: "🇧🇷 ", cls: "active-green" },
-            { id: "big",    label: "Jogos Grandes",  emoji: "🔥 ", cls: "active-orange" },
-          ].map(f => {
-            const active = filter === f.id;
-            return (
-              <button
-                key={f.id}
-                className={`chip${active ? " active" + (f.cls ? "" : "") + (f.cls ? " " + f.cls : " active") : ""}`}
-                onClick={() => setFilter(filter === f.id && f.id !== "all" ? "all" : f.id)}
-                style={active && f.cls ? { background: f.cls === "active-green" ? "rgba(34,197,94,0.1)" : "rgba(251,146,60,0.1)", borderColor: f.cls === "active-green" ? "rgba(34,197,94,0.35)" : "rgba(251,146,60,0.35)", color: f.cls === "active-green" ? "var(--green)" : "var(--orange)" } : undefined}
+      {mainTab !== "bolao" && (() => {
+        const isTeamFilter = !["all","brazil","big"].includes(filter);
+        return (
+          <div className="filter-bar">
+            {[
+              { id: "all",    label: "Todos",        emoji: "",   cls: "" },
+              { id: "brazil", label: "Brasil",        emoji: "🇧🇷 ", cls: "active-green" },
+              { id: "big",    label: "Jogos Grandes", emoji: "🔥 ", cls: "active-orange" },
+            ].map(f => {
+              const active = filter === f.id;
+              return (
+                <button
+                  key={f.id}
+                  className={`chip${active ? " active" + (f.cls ? " " + f.cls : "") : ""}`}
+                  onClick={() => setFilter(filter === f.id && f.id !== "all" ? "all" : f.id)}
+                  style={active && f.cls ? { background: f.cls === "active-green" ? "rgba(34,197,94,0.1)" : "rgba(251,146,60,0.1)", borderColor: f.cls === "active-green" ? "rgba(34,197,94,0.35)" : "rgba(251,146,60,0.35)", color: f.cls === "active-green" ? "var(--green)" : "var(--orange)" } : undefined}
+                >
+                  {f.emoji}{f.label}
+                </button>
+              );
+            })}
+
+            {/* Team dropdown */}
+            <div className={`team-select-wrap${isTeamFilter ? " is-active" : ""}`}>
+              <select
+                className={`chip team-select${isTeamFilter ? " team-select-active" : ""}`}
+                value={isTeamFilter ? filter : ""}
+                onChange={e => setFilter(e.target.value || "all")}
               >
-                {f.emoji}{f.label}
-              </button>
-            );
-          })}
-          {filter === "big" && (
-            <span style={{ fontFamily: "var(--f-body)", fontSize: 10, color: "var(--t3)", alignSelf: "center", flexShrink: 0, marginLeft: 2 }}>
-              Top 20 FIFA
-            </span>
-          )}
-        </div>
-      )}
+                <option value="">Outra seleção…</option>
+                {GROUPS_LIST.map(g => (
+                  <optgroup key={g} label={`Grupo ${g}`}>
+                    {GROUP_TEAMS[g].map(t => (
+                      <option key={t} value={t}>{TEAMS[t]?.emoji} {t}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+
+            {filter === "big" && (
+              <span style={{ fontFamily: "var(--f-body)", fontSize: 10, color: "var(--t3)", alignSelf: "center", flexShrink: 0, marginLeft: 2 }}>
+                Top 20 FIFA
+              </span>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── TABELA ────────────────────────────────────── */}
       {mainTab === "tabela" && (
@@ -173,8 +195,10 @@ export default function App() {
           {subTab === "grupos" && (
             <div style={{ padding: pad, display: isDesk ? "grid" : "block", gridTemplateColumns: isWide ? "1fr 1fr" : "1fr 1fr", gap: 16 }}>
               {GROUPS_LIST.map(g => {
+                const isTeamFilter = !["all","brazil","big"].includes(filter);
                 if (filter === "brazil" && !GROUP_TEAMS[g].includes("Brasil")) return null;
                 if (filter === "big" && !GM.filter(m => m.g === g).some(m => isBigMatch(m.h, m.a))) return null;
+                if (isTeamFilter && !GROUP_TEAMS[g].includes(filter)) return null;
                 return (
                   <GroupCard
                     key={g} group={g} standings={allSt[g]} scores={scores}

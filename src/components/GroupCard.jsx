@@ -59,7 +59,7 @@ export default function GroupCard({ group, standings, scores, onScore, expanded,
             {standings.map((t, i) => {
               const q = i < 2, third = i === 2;
               return (
-                <tr key={t.team}>
+                <tr key={t.team} className={q ? "row-qualified" : third ? "row-third" : ""}>
                   <td style={{ textAlign: "left", paddingLeft: 10 }}>
                     <span style={{
                       display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -101,9 +101,11 @@ export default function GroupCard({ group, standings, scores, onScore, expanded,
             const rankH = FIFA_RANKING[m.h], rankA = FIFA_RANKING[m.a];
             const mBrazil = isBrazilMatch(m.h, m.a);
             const mBig    = isBigMatch(m.h, m.a);
-            const dimmed  = (filter === "brazil" && !mBrazil) || (filter === "big" && !mBig);
-            const hl      = (filter === "brazil" && mBrazil) || (filter === "big" && mBig);
-            const hlColor = filter === "brazil" ? "var(--green)" : "var(--orange)";
+            const isTeamFilter = !["all","brazil","big"].includes(filter);
+            const mTeam   = isTeamFilter && (m.h === filter || m.a === filter);
+            const dimmed  = (filter === "brazil" && !mBrazil) || (filter === "big" && !mBig) || (isTeamFilter && !mTeam);
+            const hl      = (filter === "brazil" && mBrazil) || (filter === "big" && mBig) || mTeam;
+            const hlColor = filter === "brazil" ? "var(--green)" : isTeamFilter ? "var(--blue)" : "var(--orange)";
 
             return (
               <div key={idx} className="match-row" style={{ opacity: dimmed ? 0.28 : 1 }} onClick={() => onToggle(key)}>
@@ -161,6 +163,10 @@ export default function GroupCard({ group, standings, scores, onScore, expanded,
                     <span>·</span>
                     <span>{m.c}</span>
                   </div>
+                  {hasScore
+                    ? <span className="match-status match-status-finished">Concluído</span>
+                    : <span className="match-status match-status-upcoming">A Jogar</span>
+                  }
                 </div>
 
                 {/* Expanded detail */}

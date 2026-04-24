@@ -34,8 +34,10 @@ export default function BracketView({ allSt, qt, koScores, onKoScore, isDesk, is
     const inSz  = isDesk ? 33 : 28;
     const mBrazil = isBrazilMatch(ht, at);
     const mBig    = isBigMatch(ht, at);
-    const dimmed  = hasTeams && ((filter === "brazil" && !mBrazil) || (filter === "big" && !mBig));
-    const hl      = hasTeams && ((filter === "brazil" && mBrazil) || (filter === "big" && mBig));
+    const isTeamFilter = !["all","brazil","big"].includes(filter);
+    const mTeam   = isTeamFilter && hasTeams && (ht === filter || at === filter);
+    const dimmed  = hasTeams && ((filter === "brazil" && !mBrazil) || (filter === "big" && !mBig) || (isTeamFilter && !mTeam));
+    const hl      = hasTeams && ((filter === "brazil" && mBrazil) || (filter === "big" && mBig) || mTeam);
 
     return (
       <div
@@ -75,6 +77,7 @@ export default function BracketView({ allSt, qt, koScores, onKoScore, isDesk, is
                   <span style={{
                     fontWeight: row.win ? 800 : 500,
                     color: row.win ? "var(--win)" : "var(--t1)",
+                    textShadow: row.win ? "0 0 12px rgba(34,197,94,0.35)" : "none",
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   }}>
                     {teamName(row.team, isDesk)}

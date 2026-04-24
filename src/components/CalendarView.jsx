@@ -81,9 +81,11 @@ export default function CalendarView({ scores, koScores, allSt, qt, isDesk, isWi
                 const color = isKo ? (ROUND_CSS[m.rn] || "var(--r32)") : "transparent";
                 const mBrazil = isBrazilMatch(m.h, m.a);
                 const mBig    = isBigMatch(m.h, m.a);
-                const dimmed  = (filter === "brazil" && !mBrazil) || (filter === "big" && !mBig);
-                const hl      = (filter === "brazil" && mBrazil) || (filter === "big" && mBig);
-                const hlColor = filter === "brazil" ? "var(--green)" : "var(--orange)";
+                const isTeamFilter = !["all","brazil","big"].includes(filter);
+                const mTeam   = isTeamFilter && (m.h === filter || m.a === filter);
+                const dimmed  = (filter === "brazil" && !mBrazil) || (filter === "big" && !mBig) || (isTeamFilter && !mTeam);
+                const hl      = (filter === "brazil" && mBrazil) || (filter === "big" && mBig) || mTeam;
+                const hlColor = filter === "brazil" ? "var(--green)" : isTeamFilter ? "var(--blue)" : "var(--orange)";
 
                 return (
                   <div
