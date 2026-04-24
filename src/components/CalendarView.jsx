@@ -14,6 +14,9 @@ const ROUND_CSS = {
   "Final":        "var(--final)",
 };
 
+const ROUND_DISPLAY = { "Rodada de 32": "16 Avos" };
+const rLabel = rn => ROUND_DISPLAY[rn] || rn;
+
 const DAY_PT = { Qui:"Quinta-feira", Sex:"Sexta-feira", Sáb:"Sábado", Dom:"Domingo", Seg:"Segunda-feira", Ter:"Terça-feira", Qua:"Quarta-feira" };
 
 function RankBadge({ rank }) {
@@ -38,11 +41,21 @@ export default function CalendarView({ scores, koScores, allSt, qt, isDesk, isWi
     return list;
   }, [scores, koScores, allSt, qt]);
 
+  const filtered = useMemo(() => {
+    if (filter === "all") return all;
+    return all.filter(m => {
+      if (!m.h || !m.a) return false;
+      if (filter === "brazil") return isBrazilMatch(m.h, m.a);
+      if (filter === "big")    return isBigMatch(m.h, m.a);
+      return m.h === filter || m.a === filter;
+    });
+  }, [all, filter]);
+
   const byDate = useMemo(() => {
     const map = new Map();
-    all.forEach(m => { if (!map.has(m.d)) map.set(m.d, []); map.get(m.d).push(m); });
+    filtered.forEach(m => { if (!map.has(m.d)) map.set(m.d, []); map.get(m.d).push(m); });
     return map;
-  }, [all]);
+  }, [filtered]);
 
   const flagSz = isDesk ? 18 : 15;
 
@@ -79,13 +92,10 @@ export default function CalendarView({ scores, koScores, allSt, qt, isDesk, isWi
                 const hWin = hasScore && hg > ag, aWin = hasScore && ag > hg;
                 const isKo = m.type === "ko";
                 const color = isKo ? (ROUND_CSS[m.rn] || "var(--r32)") : "transparent";
-                const mBrazil = isBrazilMatch(m.h, m.a);
-                const mBig    = isBigMatch(m.h, m.a);
                 const isTeamFilter = !["all","brazil","big"].includes(filter);
-                const mTeam   = isTeamFilter && (m.h === filter || m.a === filter);
-                const dimmed  = (filter === "brazil" && !mBrazil) || (filter === "big" && !mBig) || (isTeamFilter && !mTeam);
-                const hl      = (filter === "brazil" && mBrazil) || (filter === "big" && mBig) || mTeam;
+                const hl      = filter !== "all";
                 const hlColor = filter === "brazil" ? "var(--green)" : isTeamFilter ? "var(--blue)" : "var(--orange)";
+                const hlBg    = filter === "brazil" ? "rgba(34,197,94,0.05)" : isTeamFilter ? "rgba(59,130,246,0.05)" : "rgba(251,146,60,0.05)";
 
                 return (
                   <div
@@ -93,10 +103,9 @@ export default function CalendarView({ scores, koScores, allSt, qt, isDesk, isWi
                     className="cal-match"
                     style={{
                       borderLeftColor: hl ? hlColor : (isDesk ? color : "transparent"),
-                      background: isDesk ? (hl ? (filter === "brazil" ? "rgba(34,197,94,0.05)" : "rgba(251,146,60,0.05)") : "var(--bg-card)") : "transparent",
+                      background: isDesk ? (hl ? hlBg : "var(--bg-card)") : "transparent",
                       borderRadius: isDesk ? 8 : 0,
                       borderBottom: isDesk ? "none" : "1px solid var(--border)",
-                      opacity: dimmed ? 0.22 : 1,
                       boxShadow: isDesk ? "var(--shadow-card)" : "none",
                     }}
                   >
@@ -136,7 +145,7 @@ export default function CalendarView({ scores, koScores, allSt, qt, isDesk, isWi
                       <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
                         {isKo && (
                           <span style={{ fontFamily: "var(--f-display)", fontSize: 9, fontWeight: 700, padding: "1px 6px", borderRadius: 3, background: `color-mix(in srgb, ${ROUND_CSS[m.rn] || "var(--r32)"} 15%, transparent)`, color: ROUND_CSS[m.rn] || "var(--r32)" }}>
-                            {m.rn}
+                            {rLabel(m.rn)}
                           </span>
                         )}
                         {!isKo && <span style={{ fontFamily: "var(--f-body)", fontSize: 9, color: "var(--t3)" }}>Grupo {m.g} · {m.r}ª</span>}

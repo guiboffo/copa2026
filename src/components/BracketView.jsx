@@ -7,6 +7,9 @@ function RankBadge({ rank }) {
   return <span className="rank-badge">#{rank}</span>;
 }
 
+const ROUND_DISPLAY = { "Rodada de 32": "16 Avos" };
+const rLabel = rn => ROUND_DISPLAY[rn] || rn;
+
 // Map CSS variable names to the round colors
 const ROUND_CSS = {
   "Rodada de 32": "var(--r32)",
@@ -134,7 +137,7 @@ export default function BracketView({ allSt, qt, koScores, onKoScore, isDesk, is
           <div key={rn} style={{ marginBottom: 28 }}>
             <div className="round-header">
               <span className="round-dot" style={{ background: color }} />
-              <span style={{ color }}>{rn}</span>
+              <span style={{ color }}>{rLabel(rn)}</span>
               <span className="round-count">— {mns.length} {mns.length === 1 ? "jogo" : "jogos"}</span>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: cols, gap: isDesk ? 10 : 8 }}>

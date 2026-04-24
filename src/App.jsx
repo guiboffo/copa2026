@@ -69,6 +69,7 @@ export default function App() {
 
   const maxW = isWide ? 1280 : isDesk ? 960 : "100%";
   const pad  = isDesk ? "24px 28px 80px" : "12px 12px 60px";
+  const isTeamFilter = !["all", "brazil", "big"].includes(filter);
 
   return (
     <div style={{ fontFamily: "var(--f-body)", background: "var(--bg-base)", minHeight: "100vh", color: "var(--t1)", maxWidth: maxW, margin: "0 auto" }}>
@@ -132,54 +133,51 @@ export default function App() {
       </nav>
 
       {/* ── FILTER BAR ────────────────────────────────── */}
-      {mainTab !== "bolao" && (() => {
-        const isTeamFilter = !["all","brazil","big"].includes(filter);
-        return (
-          <div className="filter-bar">
-            {[
-              { id: "all",    label: "Todos",        emoji: "",   cls: "" },
-              { id: "brazil", label: "Brasil",        emoji: "🇧🇷 ", cls: "active-green" },
-              { id: "big",    label: "Jogos Grandes", emoji: "🔥 ", cls: "active-orange" },
-            ].map(f => {
-              const active = filter === f.id;
-              return (
-                <button
-                  key={f.id}
-                  className={`chip${active ? " active" + (f.cls ? " " + f.cls : "") : ""}`}
-                  onClick={() => setFilter(filter === f.id && f.id !== "all" ? "all" : f.id)}
-                  style={active && f.cls ? { background: f.cls === "active-green" ? "rgba(34,197,94,0.1)" : "rgba(251,146,60,0.1)", borderColor: f.cls === "active-green" ? "rgba(34,197,94,0.35)" : "rgba(251,146,60,0.35)", color: f.cls === "active-green" ? "var(--green)" : "var(--orange)" } : undefined}
-                >
-                  {f.emoji}{f.label}
-                </button>
-              );
-            })}
-
-            {/* Team dropdown */}
-            <div className={`team-select-wrap${isTeamFilter ? " is-active" : ""}`}>
-              <select
-                className={`chip team-select${isTeamFilter ? " team-select-active" : ""}`}
-                value={isTeamFilter ? filter : ""}
-                onChange={e => setFilter(e.target.value || "all")}
+      {mainTab !== "bolao" && (
+        <div className="filter-bar">
+          {[
+            { id: "all",    label: "Todos",        emoji: "",   cls: "" },
+            { id: "brazil", label: "Brasil",        emoji: "🇧🇷 ", cls: "active-green" },
+            { id: "big",    label: "Jogos Grandes", emoji: "🔥 ", cls: "active-orange" },
+          ].map(f => {
+            const active = filter === f.id;
+            return (
+              <button
+                key={f.id}
+                className={`chip${active ? " active" + (f.cls ? " " + f.cls : "") : ""}`}
+                onClick={() => setFilter(filter === f.id && f.id !== "all" ? "all" : f.id)}
+                style={active && f.cls ? { background: f.cls === "active-green" ? "rgba(34,197,94,0.1)" : "rgba(251,146,60,0.1)", borderColor: f.cls === "active-green" ? "rgba(34,197,94,0.35)" : "rgba(251,146,60,0.35)", color: f.cls === "active-green" ? "var(--green)" : "var(--orange)" } : undefined}
               >
-                <option value="">Outra seleção…</option>
-                {GROUPS_LIST.map(g => (
-                  <optgroup key={g} label={`Grupo ${g}`}>
-                    {GROUP_TEAMS[g].map(t => (
-                      <option key={t} value={t}>{TEAMS[t]?.emoji} {t}</option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-            </div>
+                {f.emoji}{f.label}
+              </button>
+            );
+          })}
 
-            {filter === "big" && (
-              <span style={{ fontFamily: "var(--f-body)", fontSize: 10, color: "var(--t3)", alignSelf: "center", flexShrink: 0, marginLeft: 2 }}>
-                Top 20 FIFA
-              </span>
-            )}
+          {/* Team dropdown */}
+          <div className={`team-select-wrap${isTeamFilter ? " is-active" : ""}`}>
+            <select
+              className={`chip team-select${isTeamFilter ? " team-select-active" : ""}`}
+              value={isTeamFilter ? filter : ""}
+              onChange={e => setFilter(e.target.value || "all")}
+            >
+              <option value="">Outra seleção…</option>
+              {GROUPS_LIST.map(g => (
+                <optgroup key={g} label={`Grupo ${g}`}>
+                  {GROUP_TEAMS[g].map(t => (
+                    <option key={t} value={t}>{TEAMS[t]?.emoji} {t}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
           </div>
-        );
-      })()}
+
+          {filter === "big" && (
+            <span style={{ fontFamily: "var(--f-body)", fontSize: 10, color: "var(--t3)", alignSelf: "center", flexShrink: 0, marginLeft: 2 }}>
+              Top 20 FIFA
+            </span>
+          )}
+        </div>
+      )}
 
       {/* ── TABELA ────────────────────────────────────── */}
       {mainTab === "tabela" && (

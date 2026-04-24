@@ -1,11 +1,134 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Flag from "./Flag.jsx";
 import RankBadge from "./RankBadge.jsx";
 import { GM } from "../data/matches.js";
 import { KO, ROUND_ORDER, RC } from "../data/knockout.js";
-import { GROUP_TEAMS, GROUPS_LIST, FIFA_RANKING, teamName } from "../data/teams.js";
+import { GROUP_TEAMS, GROUPS_LIST, TEAMS, FIFA_RANKING, teamName } from "../data/teams.js";
 import { resolveTeam, labelToText, calcBolaoPoints } from "../utils/standings.js";
 import { loadBolao, saveBolao, exportCode, importCode } from "../utils/storage.js";
+
+const ROUND_DISPLAY = { "Rodada de 32": "16 Avos" };
+const rLabel = rn => ROUND_DISPLAY[rn] || rn;
+
+// ─── SHARE CARD (rendered off-screen for PNG export) ──────────────────────────
+function ShareCard({ cardRef, bolaoName, bScores, bKoScores, scores, koScores, allSt, qt, totalEarned, totalPossible }) {
+  const accuracy = totalPossible > 0 ? Math.round((totalEarned / totalPossible) * 100) : 0;
+  const C = {
+    bg: "#050a13", card: "#0c1424", gold: "#f0c93a", green: "#22c55e",
+    blue: "#3b82f6", red: "#ef4444", t1: "#f2f6ff", t2: "#8898bf", t3: "#3a5270",
+    border: "rgba(255,255,255,0.07)",
+  };
+
+  return (
+    <div ref={cardRef} style={{ width: 800, background: C.bg, fontFamily: "'DM Sans','Arial',sans-serif", color: C.t1, overflow: "hidden" }}>
+      {/* Tricolor bar */}
+      <div style={{ height: 5, background: "linear-gradient(90deg,#ef4444,#3b82f6,#22c55e)" }} />
+
+      {/* Header */}
+      <div style={{ padding: "20px 28px", background: "linear-gradient(180deg,#0c1830 0%,#050a13 100%)", display: "flex", alignItems: "center", gap: 16, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ background: C.gold, borderRadius: 8, padding: "5px 12px", flexShrink: 0, textAlign: "center" }}>
+          <div style={{ fontWeight: 900, fontSize: 10, color: "#050a13", letterSpacing: 2, lineHeight: 1 }}>FIFA</div>
+          <div style={{ fontWeight: 900, fontSize: 15, color: "#050a13", letterSpacing: -0.5, lineHeight: 1.1 }}>2026</div>
+        </div>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: 20, color: "#fff", letterSpacing: -0.5 }}>Copa do Mundo 2026</div>
+          <div style={{ fontSize: 11, color: C.t3, marginTop: 2 }}>EUA · México · Canadá</div>
+        </div>
+        <div style={{ flex: 1 }} />
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontWeight: 900, fontSize: 22, color: C.gold }}>🎯 {bolaoName || "Meu Bolão"}</div>
+          {totalPossible > 0 && (
+            <div style={{ fontSize: 12, color: C.green, fontWeight: 700, marginTop: 3 }}>
+              {totalEarned} pts · {accuracy}% aproveitamento
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Groups */}
+      <div style={{ padding: "18px 24px 12px" }}>
+        <div style={{ fontSize: 9, fontWeight: 800, color: C.t3, letterSpacing: 2, textTransform: "uppercase", marginBottom: 10 }}>▸ Fase de Grupos</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7 }}>
+          {GROUPS_LIST.map(g => {
+            const gm = GM.filter(m => m.g === g);
+            return (
+              <div key={g} style={{ background: C.card, borderRadius: 10, border: `1px solid ${C.border}`, overflow: "hidden" }}>
+                <div style={{ background: "rgba(240,201,58,0.07)", padding: "6px 10px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                  <span style={{ fontWeight: 900, fontSize: 13, color: C.gold }}>Grupo {g}</span>
+                </div>
+                {gm.map(m => {
+                  const idx = GM.indexOf(m);
+                  const pred = bScores[idx] || { h: "", a: "" };
+                  const hasPred = pred.h !== "" && pred.a !== "";
+                  return (
+                    <div key={idx} style={{ display: "flex", alignItems: "center", padding: "4px 10px", borderTop: "1px solid rgba(255,255,255,0.035)" }}>
+                      <span style={{ fontSize: 9, color: C.t3, flex: 1, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                        {TEAMS[m.h]?.emoji} {teamName(m.h, true)} – {TEAMS[m.a]?.emoji} {teamName(m.a, true)}
+                      </span>
+                      <span style={{ fontWeight: 800, fontSize: 11, color: hasPred ? C.gold : "rgba(255,255,255,0.12)", flexShrink: 0, marginLeft: 4 }}>
+                        {hasPred ? `${pred.h}–${pred.a}` : "–"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* KO */}
+      <div style={{ padding: "0 24px 20px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+        <div style={{ fontSize: 9, fontWeight: 800, color: C.t3, letterSpacing: 2, textTransform: "uppercase", margin: "14px 0 10px" }}>▸ Mata-mata</div>
+        {ROUND_ORDER.map(rn => {
+          const mns = Object.keys(KO).filter(k => KO[k].rn === rn).map(Number).sort((a, b) => a - b);
+          const roundColor = RC[rn] || C.blue;
+          const cols = (rn === "Rodada de 32" || rn === "Oitavas") ? "1fr 1fr" : "1fr";
+          return (
+            <div key={rn} style={{ marginBottom: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 5 }}>
+                <div style={{ width: 7, height: 7, borderRadius: "50%", background: roundColor }} />
+                <span style={{ fontWeight: 800, fontSize: 10, color: roundColor }}>{rLabel(rn)}</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: cols, gap: 4, paddingLeft: 14 }}>
+                {mns.map(mn => {
+                  const ko = KO[mn];
+                  const ht = resolveTeam(ko.hs, allSt, qt, koScores);
+                  const at = resolveTeam(ko.as, allSt, qt, koScores);
+                  const pred = bKoScores[mn] || { h: "", a: "" };
+                  const hasPred = pred.h !== "" && pred.a !== "";
+                  const htLabel = ht || labelToText(ko.hs);
+                  const atLabel = at || labelToText(ko.as);
+                  return (
+                    <div key={mn} style={{ display: "flex", alignItems: "center", padding: "3px 8px", background: "rgba(255,255,255,0.025)", borderRadius: 5, borderLeft: `2px solid ${roundColor}` }}>
+                      <span style={{ fontSize: 9, color: C.t2, flex: 1, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                        {ht ? (TEAMS[ht]?.emoji + " ") : ""}{teamName(htLabel, true)} × {at ? (TEAMS[at]?.emoji + " ") : ""}{teamName(atLabel, true)}
+                      </span>
+                      <span style={{ fontWeight: 800, fontSize: 10, color: hasPred ? C.gold : "rgba(255,255,255,0.12)", flexShrink: 0, marginLeft: 4 }}>
+                        {hasPred ? `${pred.h}–${pred.a}` : "–"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Footer */}
+      <div style={{ borderTop: `1px solid ${C.border}`, padding: "10px 28px", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#030609" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ height: 3, width: 24, background: "linear-gradient(90deg,#ef4444,#3b82f6,#22c55e)", borderRadius: 2 }} />
+          <span style={{ fontSize: 10, color: C.t3, fontWeight: 700 }}>Copa 2026 · Simulador</span>
+        </div>
+        <span style={{ fontSize: 10, color: C.t3 }}>
+          Gerado em {new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 const SCORING_INFO = [
   { label: "Placar Exato", points: 3, color: "#48bb78", icon: "⚽" },
@@ -23,6 +146,28 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
   const [importError, setImportError] = useState("");
   const [importedBolao, setImportedBolao] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const cardRef = useRef(null);
+
+  const downloadPNG = async () => {
+    if (!cardRef.current || generating) return;
+    setGenerating(true);
+    try {
+      await new Promise(r => setTimeout(r, 250));
+      const { default: html2canvas } = await import("html2canvas");
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: "#050a13", scale: 2, useCORS: false,
+        allowTaint: true, logging: false,
+      });
+      const link = document.createElement("a");
+      link.download = `bolao-${(bolaoName || "copa2026").replace(/[^a-z0-9]/gi, "-").toLowerCase()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   useEffect(() => {
     const saved = loadBolao();
@@ -236,7 +381,7 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
                 return (
                   <div key={rn}>
                     <div style={{ fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 9, letterSpacing: 1.5, textTransform: "uppercase", padding: "6px 12px 3px", borderTop: "1px solid var(--border)", color: RC[rn] }}>
-                      {rn}
+                      {rLabel(rn)}
                     </div>
                     {mns.map(mn => {
                       const ko = KO[mn];
@@ -278,6 +423,12 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
           </h2>
           <button onClick={() => setView("create")} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(240,201,58,0.4)", background: "rgba(240,201,58,0.1)", color: "var(--gold)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
             Editar Palpites
+          </button>
+          <button
+            onClick={() => setShowShareModal(true)}
+            style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(240,201,58,0.35)", background: "rgba(240,201,58,0.08)", color: "var(--gold)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}
+          >
+            📸 Gerar Imagem
           </button>
           <button onClick={handleExport} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: copied ? "var(--green)" : "var(--t2)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
             {copied ? "✓ Copiado!" : "Exportar Código"}
@@ -371,6 +522,54 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
               </div>
             );
           })}
+        </div>
+      </div>
+    );
+  }
+
+  // ─── SHARE MODAL ──────────────────────────────────────────────────────────
+  if (showShareModal) {
+    return (
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 200,
+        background: "rgba(0,0,0,0.88)",
+        display: "flex", flexDirection: "column", alignItems: "center",
+        overflowY: "auto", padding: "24px 16px 48px",
+      }}>
+        {/* Toolbar */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexShrink: 0, flexWrap: "wrap", justifyContent: "center" }}>
+          <button
+            onClick={downloadPNG}
+            disabled={generating}
+            style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: "var(--gold)", color: "#050a13", fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 14, cursor: generating ? "wait" : "pointer", opacity: generating ? 0.7 : 1 }}
+          >
+            {generating ? "⏳ Gerando..." : "⬇️ Baixar PNG"}
+          </button>
+          <button
+            onClick={() => setShowShareModal(false)}
+            style={{ padding: "10px 20px", borderRadius: 10, border: "1px solid var(--border)", background: "transparent", color: "var(--t2)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+          >
+            ✕ Fechar
+          </button>
+          <span style={{ fontFamily: "var(--f-body)", fontSize: 11, color: "var(--t3)" }}>
+            Pré-visualização — a imagem baixada será em alta resolução (2×)
+          </span>
+        </div>
+
+        {/* Card preview */}
+        <div style={{ maxWidth: "100%", overflowX: "auto", borderRadius: 12, boxShadow: "0 24px 80px rgba(0,0,0,0.8)" }}>
+          <ShareCard
+            cardRef={cardRef}
+            bolaoName={bolaoName}
+            bScores={bScores}
+            bKoScores={bKoScores}
+            scores={scores}
+            koScores={koScores}
+            allSt={allSt}
+            qt={qt}
+            totalEarned={totalEarned}
+            totalPossible={totalPossible}
+          />
         </div>
       </div>
     );
