@@ -7,7 +7,8 @@ export default function Flag({ team, size = 20 }) {
     <img
       src={url}
       alt={team}
-      style={{ width: size, height: size * 0.7, objectFit: "cover", borderRadius: 2, border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}
+      crossOrigin="anonymous"
+      style={{ width: size, height: size * 0.7, objectFit: "cover", borderRadius: 3, border: "1px solid rgba(255,255,255,0.1)", flexShrink: 0 }}
       onError={e => { e.target.style.display = "none"; }}
     />
   );

@@ -109,9 +109,8 @@ export default function App() {
             <button
               onClick={resetAll}
               title="Resetar resultados"
-              style={{ width: 32, height: 32, borderRadius: 8, border: "1px solid var(--border)", color: "var(--t3)", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", transition: "var(--ease)" }}
-              onMouseEnter={e => e.currentTarget.style.color = "var(--red)"}
-              onMouseLeave={e => e.currentTarget.style.color = "var(--t3)"}
+              className="btn-icon"
+              aria-label="Resetar resultados"
             >↺</button>
           </div>
         </div>

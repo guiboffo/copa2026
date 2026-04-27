@@ -221,14 +221,64 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
   const predFilled = Object.keys(bScores).length;
   const totalMatches = GM.length + Object.keys(KO).length;
 
-  const renderPredRow = (label, predH, predA, onH, onA, result, detail) => {
+  // ─── SHARE MODAL (must be first — takes precedence over all other views) ───
+  if (showShareModal) {
+    return (
+      <div style={{
+        position: "fixed", inset: 0, zIndex: 200,
+        background: "rgba(0,0,0,0.88)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        display: "flex", flexDirection: "column", alignItems: "center",
+        overflowY: "auto", padding: "24px 16px 48px",
+        animation: "fadeIn 0.22s ease both",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexShrink: 0, flexWrap: "wrap", justifyContent: "center" }}>
+          <button
+            onClick={downloadPNG}
+            disabled={generating}
+            className="btn btn-primary btn-lg"
+            style={{ opacity: generating ? 0.7 : 1, cursor: generating ? "wait" : "pointer" }}
+          >
+            {generating ? "Gerando..." : "Baixar PNG"}
+          </button>
+          <button
+            onClick={() => setShowShareModal(false)}
+            className="btn btn-ghost btn-lg"
+          >
+            Fechar
+          </button>
+          <span style={{ fontFamily: "var(--f-body)", fontSize: 11, color: "var(--t3)" }}>
+            Pré-visualização — a imagem baixada sai em alta resolução (2×)
+          </span>
+        </div>
+
+        <div style={{ maxWidth: "100%", overflowX: "auto", borderRadius: 16, boxShadow: "0 24px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(240,201,58,0.15)" }}>
+          <ShareCard
+            cardRef={cardRef}
+            bolaoName={bolaoName}
+            bScores={bScores}
+            bKoScores={bKoScores}
+            scores={scores}
+            koScores={koScores}
+            allSt={allSt}
+            qt={qt}
+            totalEarned={totalEarned}
+            totalPossible={totalPossible}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  const renderPredRow = (key, label, predH, predA, onH, onA, result, detail) => {
     const inSz = isDesk ? 30 : 26;
     const hasActual = result?.h !== "" && result?.h !== undefined;
     const typeColor = detail?.type === "exact" ? "#48bb78" : detail?.type === "result" ? "#ecc94b" : detail?.type === "wrong" ? "#fc8181" : "var(--border)";
     const typeLabel = detail?.type === "exact" ? "+3" : detail?.type === "result" ? "+1" : detail?.type === "wrong" ? "✗" : "";
 
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderBottom: "1px solid rgba(255,255,255,0.04)", position: "relative" }}>
+      <div key={key} style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderBottom: "1px solid rgba(255,255,255,0.04)", position: "relative" }}>
         {detail && (
           <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 3, background: typeColor, borderRadius: "3px 0 0 3px" }} />
         )}
@@ -276,16 +326,10 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
           </div>
 
           <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-            <button
-              onClick={() => setView("create")}
-              style={{ padding: "12px 28px", borderRadius: 10, border: "none", background: "var(--gold)", color: "#070b15", fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 15, cursor: "pointer" }}
-            >
+            <button onClick={() => setView("create")} className="btn btn-primary btn-lg">
               Criar Meu Bolão
             </button>
-            <button
-              onClick={() => setView("import")}
-              style={{ padding: "12px 24px", borderRadius: 10, border: "1px solid var(--border)", background: "transparent", color: "var(--t2)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
-            >
+            <button onClick={() => setView("import")} className="btn btn-outline btn-lg">
               Importar Código
             </button>
           </div>
@@ -303,17 +347,15 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, flexWrap: "wrap" }}>
-          <button onClick={() => setView("landing")} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--t3)", cursor: "pointer", fontFamily: "var(--f-body)", fontSize: 13, flexShrink: 0 }}>← Voltar</button>
+          <button onClick={() => setView("landing")} className="btn btn-ghost btn-sm">← Voltar</button>
           <input
             value={bolaoName}
             onChange={e => setBolaoName(e.target.value)}
             placeholder="Seu nome / apelido..."
-            style={{ flex: 1, minWidth: 100, padding: "8px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--bg-input)", color: "var(--t1)", fontFamily: "var(--f-body)", fontSize: 13, outline: "none" }}
+            className="input"
+            style={{ flex: 1, minWidth: 100 }}
           />
-          <button
-            onClick={saveBolaoData}
-            style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "var(--gold)", color: "#070b15", fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 13, cursor: "pointer", flexShrink: 0, whiteSpace: "nowrap" }}
-          >
+          <button onClick={saveBolaoData} className="btn btn-primary">
             Salvar ✓
           </button>
         </div>
@@ -361,6 +403,7 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
                     const actual = scores[idx] || { h: "", a: "" };
                     const detail = groupPoints.details[idx];
                     return renderPredRow(
+                      `g-${idx}`,
                       `${teamName(m.h, isDesk)} × ${teamName(m.a, isDesk)}`,
                       pred.h, pred.a,
                       v => updPred(idx, "h", v),
@@ -391,6 +434,7 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
                       const actual = koScores[mn] || { h: "", a: "" };
                       const detail = koPoints.details[mn];
                       return renderPredRow(
+                        `k-${mn}`,
                         `${teamName(ht, isDesk) || ht} × ${teamName(at, isDesk) || at}`,
                         pred.h, pred.a,
                         v => updKoPred(mn, "h", v),
@@ -421,19 +465,27 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
           <h2 style={{ fontFamily: "var(--f-display)", fontWeight: 900, fontSize: isDesk ? 22 : 18, color: "var(--t1)", flex: 1 }}>
             🎯 {bolaoName || "Meu Bolão"}
           </h2>
-          <button onClick={() => setView("create")} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(240,201,58,0.4)", background: "rgba(240,201,58,0.1)", color: "var(--gold)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+          <button
+            onClick={() => setView("create")}
+            className="btn btn-sm"
+            style={{ background: "rgba(240,201,58,0.1)", border: "1px solid rgba(240,201,58,0.4)", color: "var(--gold)" }}
+          >
             Editar Palpites
           </button>
           <button
             onClick={() => setShowShareModal(true)}
-            style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid rgba(240,201,58,0.35)", background: "rgba(240,201,58,0.08)", color: "var(--gold)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}
+            className="btn btn-primary btn-sm"
           >
             📸 Gerar Imagem
           </button>
-          <button onClick={handleExport} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: copied ? "var(--green)" : "var(--t2)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+          <button
+            onClick={handleExport}
+            className="btn btn-outline btn-sm"
+            style={copied ? { color: "var(--green)", borderColor: "rgba(34,197,94,0.4)" } : undefined}
+          >
             {copied ? "✓ Copiado!" : "Exportar Código"}
           </button>
-          <button onClick={() => setView("import")} style={{ padding: "6px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--t3)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+          <button onClick={() => setView("import")} className="btn btn-ghost btn-sm">
             Importar Adversário
           </button>
         </div>
@@ -527,60 +579,12 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
     );
   }
 
-  // ─── SHARE MODAL ──────────────────────────────────────────────────────────
-  if (showShareModal) {
-    return (
-      <div style={{
-        position: "fixed", inset: 0, zIndex: 200,
-        background: "rgba(0,0,0,0.88)",
-        display: "flex", flexDirection: "column", alignItems: "center",
-        overflowY: "auto", padding: "24px 16px 48px",
-      }}>
-        {/* Toolbar */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, flexShrink: 0, flexWrap: "wrap", justifyContent: "center" }}>
-          <button
-            onClick={downloadPNG}
-            disabled={generating}
-            style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: "var(--gold)", color: "#050a13", fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 14, cursor: generating ? "wait" : "pointer", opacity: generating ? 0.7 : 1 }}
-          >
-            {generating ? "⏳ Gerando..." : "⬇️ Baixar PNG"}
-          </button>
-          <button
-            onClick={() => setShowShareModal(false)}
-            style={{ padding: "10px 20px", borderRadius: 10, border: "1px solid var(--border)", background: "transparent", color: "var(--t2)", fontFamily: "var(--f-display)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
-          >
-            ✕ Fechar
-          </button>
-          <span style={{ fontFamily: "var(--f-body)", fontSize: 11, color: "var(--t3)" }}>
-            Pré-visualização — a imagem baixada será em alta resolução (2×)
-          </span>
-        </div>
-
-        {/* Card preview */}
-        <div style={{ maxWidth: "100%", overflowX: "auto", borderRadius: 12, boxShadow: "0 24px 80px rgba(0,0,0,0.8)" }}>
-          <ShareCard
-            cardRef={cardRef}
-            bolaoName={bolaoName}
-            bScores={bScores}
-            bKoScores={bKoScores}
-            scores={scores}
-            koScores={koScores}
-            allSt={allSt}
-            qt={qt}
-            totalEarned={totalEarned}
-            totalPossible={totalPossible}
-          />
-        </div>
-      </div>
-    );
-  }
-
   // ─── IMPORT ───────────────────────────────────────────────────────────────
   if (view === "import") {
     return (
       <div style={{ maxWidth: 640, margin: "0 auto", padding: isDesk ? "24px 0" : "12px 0" }}>
         <div className="card" style={{ padding: isDesk ? "32px" : "20px" }}>
-          <button onClick={() => setView(bolaoName ? "my-bolao" : "landing")} style={{ padding: "5px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "transparent", color: "var(--t3)", cursor: "pointer", fontFamily: "var(--f-body)", fontSize: 13, marginBottom: 20 }}>
+          <button onClick={() => setView(bolaoName ? "my-bolao" : "landing")} className="btn btn-ghost btn-sm" style={{ marginBottom: 20 }}>
             ← Voltar
           </button>
           <h3 style={{ fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 18, color: "var(--t1)", marginBottom: 8 }}>Importar Bolão de um Amigo</h3>
@@ -591,20 +595,18 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
             value={importText}
             onChange={e => setImportText(e.target.value)}
             placeholder="Cole o código aqui..."
-            style={{ width: "100%", minHeight: 100, padding: "10px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--bg-input)", color: "var(--t1)", fontFamily: "var(--f-body)", fontSize: 13, resize: "vertical", outline: "none", marginBottom: 8 }}
+            className="input"
+            style={{ minHeight: 100, resize: "vertical", marginBottom: 8 }}
           />
           {importError && (
             <div style={{ fontFamily: "var(--f-body)", fontSize: 12, color: "var(--red)", marginBottom: 8 }}>{importError}</div>
           )}
-          <button
-            onClick={handleImport}
-            style={{ padding: "10px 24px", borderRadius: 8, border: "none", background: "var(--gold)", color: "#070b15", fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 14, cursor: "pointer" }}
-          >
+          <button onClick={handleImport} className="btn btn-primary btn-lg">
             Importar
           </button>
 
           {importedBolao && (
-            <div style={{ marginTop: 20, padding: "14px", background: "rgba(34,197,94,0.08)", borderRadius: 8, border: "1px solid var(--green)" }}>
+            <div style={{ marginTop: 20, padding: 16, background: "rgba(34,197,94,0.08)", borderRadius: 12, border: "1px solid rgba(34,197,94,0.35)" }}>
               <div style={{ fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 15, color: "var(--green)", marginBottom: 4 }}>
                 ✓ Bolão importado: {importedBolao.name || "Sem nome"}
               </div>
@@ -613,10 +615,7 @@ export default function BolaoMaker({ scores, koScores, allSt, qt, isDesk }) {
                   Pontuação atual: <strong style={{ color: "var(--gold)" }}>{importedPoints.earned}</strong> pts de {importedPoints.possible} possíveis
                 </div>
               )}
-              <button
-                onClick={() => setView("my-bolao")}
-                style={{ marginTop: 12, padding: "8px 18px", borderRadius: 8, border: "none", background: "var(--green)", color: "#070b15", fontFamily: "var(--f-display)", fontWeight: 800, fontSize: 13, cursor: "pointer" }}
-              >
+              <button onClick={() => setView("my-bolao")} className="btn btn-success btn-sm" style={{ marginTop: 12 }}>
                 Ver Comparação
               </button>
             </div>
