@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { useAuth } from "../../lib/AuthContext";
 import AuthModal from "./AuthModal";
+import ResetPasswordModal from "./ResetPasswordModal";
 import GroupManager from "./GroupManager";
 import PredictionsPanel from "./PredictionsPanel";
 import BracketPicker from "./BracketPicker";
 import Leaderboard from "./Leaderboard";
 
 export default function LiveBolao({ isDesk }) {
-  const { user, profile, signOut, loading } = useAuth();
+  const { user, profile, signOut, loading, needsPasswordReset } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [tab, setTab] = useState("palpites");
 
   if (loading) {
     return <div style={{ textAlign: "center", padding: 60, color: "var(--t3)" }}>Carregando...</div>;
+  }
+
+  if (needsPasswordReset) {
+    return <ResetPasswordModal />;
   }
 
   if (!user) {
