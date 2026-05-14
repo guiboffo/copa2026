@@ -118,52 +118,67 @@ function LiveSection({ activeTournamentId }) {
   const [events, setEvents] = useState([]);
   const [lastUpdate, setLastUpdate] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const intervalRef = useRef(null);
 
-  async function fetchLive() {
+  async function fetchLive(manual = false) {
+    if (manual) setRefreshing(true);
     try {
       const res = await fetch("/api/live");
       const data = await res.json();
       if (data.ok) { setEvents(data.events); setLastUpdate(new Date()); }
     } catch {}
     setLoading(false);
+    if (manual) setRefreshing(false);
   }
 
   useEffect(() => {
     fetchLive();
-    intervalRef.current = setInterval(fetchLive, 60000);
+    intervalRef.current = setInterval(() => fetchLive(), 60000);
     return () => clearInterval(intervalRef.current);
   }, []);
 
-  const filtered = activeTournamentId
-    ? events.filter(e => e.tournamentId === activeTournamentId)
-    : events;
-
-  const live     = filtered.filter(e => e.status === "inprogress");
-  const others   = filtered.filter(e => e.status !== "inprogress");
-  const all      = [...live, ...others];
-
-  if (loading) return <div style={{ color: "var(--t3)", fontSize: 13, marginBottom: 20 }}>Buscando jogos de hoje...</div>;
-  if (all.length === 0) return null;
+  // Mostra todos os jogos de hoje da liga ativa (ao vivo + agendados + encerrados)
+  const filtered = events.filter(e => e.tournamentId === activeTournamentId);
+  const live   = filtered.filter(e => e.status === "inprogress");
+  const others = filtered.filter(e => e.status !== "inprogress");
+  const all    = [...live, ...others];
 
   return (
     <div style={{ marginBottom: 24 }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {live.length > 0 && <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)", display: "inline-block" }} />}
-          <span style={{ fontWeight: 700, fontSize: 12, color: live.length > 0 ? "var(--green)" : "var(--t3)", textTransform: "uppercase", letterSpacing: 1 }}>
-            {live.length > 0 ? `${live.length} ao vivo agora` : "Jogos de hoje"}
+          {live.length > 0 && (
+            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)", display: "inline-block" }} />
+          )}
+          <span style={{ fontWeight: 700, fontSize: 12, color: live.length > 0 ? "var(--green)" : "var(--t2)", textTransform: "uppercase", letterSpacing: 1 }}>
+            {loading ? "Buscando..." : live.length > 0 ? `${live.length} ao vivo agora` : "Jogos de hoje"}
           </span>
+          {lastUpdate && (
+            <span style={{ fontSize: 11, color: "var(--t3)" }}>
+              · {lastUpdate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+            </span>
+          )}
         </div>
-        {lastUpdate && (
-          <span style={{ fontSize: 11, color: "var(--t3)" }}>
-            {lastUpdate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-          </span>
-        )}
+        <button
+          className="btn btn-outline"
+          onClick={() => fetchLive(true)}
+          disabled={refreshing}
+          style={{ fontSize: 11, padding: "4px 10px" }}
+        >
+          {refreshing ? "..." : "⟳ Atualizar"}
+        </button>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        {all.map(e => <LiveCard key={e.id} e={e} />)}
-      </div>
+
+      {!loading && all.length === 0 ? (
+        <div style={{ fontSize: 13, color: "var(--t3)", padding: "12px 0" }}>
+          Nenhum jogo hoje nesta liga.
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {all.map(e => <LiveCard key={e.id} e={e} />)}
+        </div>
+      )}
     </div>
   );
 }
