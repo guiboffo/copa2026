@@ -1,5 +1,110 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabase";
+
+const TOURNAMENT_NAMES = {
+  384: "Copa Libertadores",
+  480: "Copa Sudamericana",
+  373: "Copa do Brasil",
+};
+
+function LiveCard({ e }) {
+  const isLive = e.status === "inprogress";
+  const isFinished = e.status === "finished";
+  const hasScore = e.homeScore != null;
+
+  return (
+    <div style={{
+      background: isLive ? "rgba(34,197,94,0.06)" : "var(--bg-card)",
+      border: `1px solid ${isLive ? "rgba(34,197,94,0.35)" : "var(--border)"}`,
+      borderRadius: 12, padding: "12px 16px",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          {isLive && <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--green)", display: "inline-block" }} />}
+          <span style={{ fontSize: 11, fontWeight: 700, color: isLive ? "var(--green)" : "var(--t3)", textTransform: "uppercase", letterSpacing: 0.5 }}>
+            {isLive ? (e.minute ? `${e.minute}'` : "Ao vivo") : isFinished ? "Encerrado" : "Agendado"}
+          </span>
+          <span style={{ fontSize: 11, color: "var(--t3)" }}>· {TOURNAMENT_NAMES[e.tournamentId] ?? e.tournament}</span>
+        </div>
+        <span style={{ fontSize: 11, color: "var(--t3)" }}>
+          {e.startTimestamp ? new Date(e.startTimestamp * 1000).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : ""}
+        </span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8, justifyContent: "flex-end" }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--t1)", textAlign: "right" }}>{e.homeTeam}</span>
+          <img src={`https://img.sofascore.com/api/v1/team/${e.homeTeamId}/image`} alt=""
+            style={{ width: 26, height: 26, objectFit: "contain" }} onError={ev => { ev.target.style.display = "none"; }} />
+        </div>
+        <div style={{
+          minWidth: 68, textAlign: "center",
+          background: hasScore ? "rgba(240,201,58,0.08)" : "rgba(255,255,255,0.03)",
+          border: `1px solid ${hasScore ? "rgba(240,201,58,0.2)" : "rgba(255,255,255,0.06)"}`,
+          borderRadius: 8, padding: "5px 8px",
+        }}>
+          {hasScore
+            ? <span style={{ fontSize: 20, fontWeight: 900, color: "var(--t1)", letterSpacing: 2 }}>{e.homeScore} <span style={{ color: "var(--t3)" }}>–</span> {e.awayScore}</span>
+            : <span style={{ fontSize: 13, color: "var(--t3)", fontWeight: 700 }}>vs</span>
+          }
+        </div>
+        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
+          <img src={`https://img.sofascore.com/api/v1/team/${e.awayTeamId}/image`} alt=""
+            style={{ width: 26, height: 26, objectFit: "contain" }} onError={ev => { ev.target.style.display = "none"; }} />
+          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--t1)" }}>{e.awayTeam}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LiveSection() {
+  const [events, setEvents] = useState([]);
+  const [lastUpdate, setLastUpdate] = useState(null);
+  const intervalRef = useRef(null);
+
+  async function fetchLive() {
+    try {
+      const res = await fetch("/api/live");
+      const data = await res.json();
+      if (data.ok) {
+        setEvents(data.events);
+        setLastUpdate(new Date());
+      }
+    } catch {}
+  }
+
+  useEffect(() => {
+    fetchLive();
+    intervalRef.current = setInterval(fetchLive, 60000); // atualiza a cada 60s
+    return () => clearInterval(intervalRef.current);
+  }, []);
+
+  const live = events.filter(e => e.status === "inprogress");
+  const today = events.filter(e => e.status !== "inprogress");
+
+  if (events.length === 0) return null;
+
+  return (
+    <div style={{ marginBottom: 28 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--green)", display: "inline-block" }} />
+          <span style={{ fontWeight: 700, fontSize: 13, color: "var(--green)", textTransform: "uppercase", letterSpacing: 1 }}>
+            Ao vivo {live.length > 0 ? `· ${live.length} jogos` : ""}
+          </span>
+        </div>
+        {lastUpdate && (
+          <span style={{ fontSize: 11, color: "var(--t3)" }}>
+            Atualizado às {lastUpdate.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+          </span>
+        )}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {[...live, ...today].map(e => <LiveCard key={e.id} e={e} />)}
+      </div>
+    </div>
+  );
+}
 
 const STATUS_LABEL = {
   pre:  { label: "Agendado",  color: "var(--t3)" },
@@ -204,6 +309,9 @@ export default function LibertadoresTab() {
           >{label}</button>
         ))}
       </div>
+
+      {/* AO VIVO — direto da API, sem banco */}
+      <LiveSection />
 
       {/* Partidas */}
       {loading ? (
