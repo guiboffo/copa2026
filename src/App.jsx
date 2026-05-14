@@ -125,7 +125,7 @@ export default function App() {
           { id: "calendario",   label: "Calendário"    },
           { id: "bolao",        label: "Bolão"         },
           { id: "live",         label: "Bolão Live"    },
-          { id: "libertadores", label: "Jogos"  },
+          // { id: "libertadores", label: "Jogos"  }, // temporariamente desativado
         ].map(t => (
           <button
             key={t.id}
