@@ -1,41 +1,59 @@
-const BASE = "https://sportapi7.p.rapidapi.com/api/v1";
-const HEADERS = {
-  "x-rapidapi-key":  process.env.RAPIDAPI_KEY,
-  "x-rapidapi-host": "sportapi7.p.rapidapi.com",
-};
+// Ao vivo via ESPN (grátis, sem chave, sem limite)
+const ESPN_BASE = "https://site.api.espn.com/apis/site/v2/sports/soccer";
 
-// IDs dos torneios suportados
-const SUPPORTED_IDS = new Set([384, 480, 373]); // Libertadores, Sudamericana, Copa do Brasil
+const LEAGUE_SLUGS = [
+  { tournamentId: 384, slug: "conmebol.libertadores", name: "Copa Libertadores" },
+  { tournamentId: 480, slug: "conmebol.sudamericana", name: "Copa Sudamericana" },
+];
+
+function parseESPN(events, tournamentId) {
+  return events.map(event => {
+    const comp = event.competitions?.[0];
+    if (!comp) return null;
+
+    const ht = comp.competitors?.find(c => c.homeAway === "home");
+    const at = comp.competitors?.find(c => c.homeAway === "away");
+    if (!ht || !at) return null;
+
+    const state     = comp.status?.type?.state ?? "pre";
+    const completed = comp.status?.type?.completed ?? false;
+    const status    = completed ? "finished" : state === "in" ? "inprogress" : "notstarted";
+    const hasScore  = completed || state === "in";
+
+    return {
+      id:             event.id,
+      tournamentId,
+      homeTeam:       ht.team?.displayName ?? "",
+      awayTeam:       at.team?.displayName ?? "",
+      homeTeamId:     null,
+      awayTeamId:     null,
+      homeLogo:       ht.team?.logo ?? null,
+      awayLogo:       at.team?.logo ?? null,
+      homeScore:      hasScore ? parseInt(ht.score) || 0 : null,
+      awayScore:      hasScore ? parseInt(at.score) || 0 : null,
+      status,
+      statusLabel:    comp.status?.type?.description ?? "",
+      minute:         null,
+      startTimestamp: event.date ? Math.floor(new Date(event.date).getTime() / 1000) : null,
+    };
+  }).filter(Boolean);
+}
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  const today = new Date().toISOString().slice(0, 10);
-
   try {
-    const r = await fetch(`${BASE}/sport/football/scheduled-events/${today}`, { headers: HEADERS });
-    if (!r.ok) throw new Error(`SportAPI7 ${r.status}`);
-    const data = await r.json();
+    const results = await Promise.all(
+      LEAGUE_SLUGS.map(async ({ tournamentId, slug }) => {
+        const r = await fetch(`${ESPN_BASE}/${slug}/scoreboard`);
+        if (!r.ok) return [];
+        const data = await r.json();
+        return parseESPN(data.events ?? [], tournamentId);
+      })
+    );
 
-    const events = (data.events ?? [])
-      .filter(e => SUPPORTED_IDS.has(e.tournament?.uniqueTournament?.id))
-      .map(e => ({
-        id:            e.id,
-        tournamentId:  e.tournament?.uniqueTournament?.id,
-        tournament:    e.tournament?.name,
-        homeTeam:      e.homeTeam?.name,
-        awayTeam:      e.awayTeam?.name,
-        homeTeamId:    e.homeTeam?.id,
-        awayTeamId:    e.awayTeam?.id,
-        homeScore:     e.homeScore?.current ?? null,
-        awayScore:     e.awayScore?.current ?? null,
-        status:        e.status?.type,
-        statusLabel:   e.status?.description,
-        minute:        e.status?.type === "inprogress" ? (e.time?.played ?? null) : null,
-        startTimestamp: e.startTimestamp,
-      }));
-
+    const events = results.flat();
     return res.status(200).json({ ok: true, events, timestamp: new Date().toISOString() });
   } catch (err) {
     return res.status(500).json({ ok: false, error: err.message });

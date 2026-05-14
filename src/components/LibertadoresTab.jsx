@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabase";
 
 const LEAGUES = [
-  { id: 384, name: "Libertadores",  supabaseSeasonId: 2 },
-  { id: 480, name: "Sudamericana",  supabaseSeasonId: 3 },
-  { id: 373, name: "Copa do Brasil", supabaseSeasonId: null },
+  { id: 384, name: "Libertadores",   supabaseSeasonId: 2,    hasLive: true },
+  { id: 480, name: "Sudamericana",   supabaseSeasonId: 3,    hasLive: true },
+  { id: 373, name: "Copa do Brasil", supabaseSeasonId: null, hasLive: false },
 ];
 
 // Cronômetro calculado pelo horário de início
@@ -25,12 +25,13 @@ function useMatchMinute(startTimestamp, isLive) {
   return minute;
 }
 
-// Avatar de time quando logo não carrega
-function TeamLogo({ teamId, teamName, size = 26 }) {
+// Avatar de time — usa logo da ESPN se disponível, fallback com iniciais
+function TeamLogo({ teamId, teamName, logoUrl, size = 26 }) {
   const [err, setErr] = useState(false);
   const initials = (teamName ?? "?").split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase();
+  const src = logoUrl || (teamId ? `https://img.sofascore.com/api/v1/team/${teamId}/image` : null);
 
-  if (err || !teamId) {
+  if (err || !src) {
     return (
       <div style={{
         width: size, height: size, borderRadius: "50%", flexShrink: 0,
@@ -41,9 +42,7 @@ function TeamLogo({ teamId, teamName, size = 26 }) {
     );
   }
   return (
-    <img
-      src={`https://img.sofascore.com/api/v1/team/${teamId}/image`}
-      alt={teamName}
+    <img src={src} alt={teamName}
       style={{ width: size, height: size, objectFit: "contain", flexShrink: 0 }}
       onError={() => setErr(true)}
     />
@@ -85,7 +84,7 @@ function LiveCard({ e }) {
           <span style={{ fontSize: 13, fontWeight: 600, color: "var(--t1)", textAlign: "right", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {e.homeTeam}
           </span>
-          <TeamLogo teamId={e.homeTeamId} teamName={e.homeTeam} />
+          <TeamLogo teamId={e.homeTeamId} teamName={e.homeTeam} logoUrl={e.homeLogo} />
         </div>
 
         <div style={{
@@ -103,7 +102,7 @@ function LiveCard({ e }) {
         </div>
 
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
-          <TeamLogo teamId={e.awayTeamId} teamName={e.awayTeam} />
+          <TeamLogo teamId={e.awayTeamId} teamName={e.awayTeam} logoUrl={e.awayLogo} />
           <span style={{ fontSize: 13, fontWeight: 600, color: "var(--t1)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {e.awayTeam}
           </span>
@@ -282,8 +281,15 @@ export default function JogosTab() {
         ))}
       </div>
 
-      {/* Ao vivo — sempre visível, filtrado pela liga ativa */}
-      <LiveSection activeTournamentId={activeLeague.id} />
+      {/* Ao vivo — ESPN (Libertadores e Sudamericana) */}
+      {activeLeague.hasLive
+        ? <LiveSection activeTournamentId={activeLeague.id} />
+        : (
+          <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 12, padding: "14px 16px", marginBottom: 24, fontSize: 13, color: "var(--t3)" }}>
+            📡 Ao vivo não disponível via ESPN para esta liga.
+          </div>
+        )
+      }
 
       {/* Histórico / agendados do banco */}
       {activeLeague.supabaseSeasonId && (
