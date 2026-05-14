@@ -12,7 +12,7 @@ import BracketView from "./components/BracketView.jsx";
 import CalendarView from "./components/CalendarView.jsx";
 import BolaoMaker from "./components/BolaoMaker.jsx";
 import LiveBolao from "./components/live/LiveBolao.jsx";
-import LibertadoresTab from "./components/LibertadoresTab.jsx";
+import JogosTab from "./components/LibertadoresTab.jsx";
 
 export default function App() {
   const W = useWidth();
@@ -125,7 +125,7 @@ export default function App() {
           { id: "calendario",   label: "Calendário"    },
           { id: "bolao",        label: "Bolão"         },
           { id: "live",         label: "Bolão Live"    },
-          { id: "libertadores", label: "Libertadores"  },
+          { id: "libertadores", label: "Jogos"  },
         ].map(t => (
           <button
             key={t.id}
@@ -243,7 +243,7 @@ export default function App() {
       {/* ── LIBERTADORES ──────────────────────────────── */}
       {mainTab === "libertadores" && (
         <div style={{ padding: pad }}>
-          <LibertadoresTab />
+          <JogosTab />
         </div>
       )}
     </div>
