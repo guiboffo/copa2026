@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../lib/AuthContext";
+import { supabase } from "../../lib/supabase";
 
 export default function AuthModal({ onClose }) {
   const { signIn, signUp, resetPassword } = useAuth();
@@ -20,8 +21,12 @@ export default function AuthModal({ onClose }) {
 
     if (mode === "login") {
       const { error } = await signIn(email, password);
-      if (error) setError(error.message === "Invalid login credentials" ? "E-mail ou senha incorretos." : error.message);
-      else onClose();
+      if (error) {
+        const msg = error.message;
+        if (msg === "Invalid login credentials") setError("E-mail ou senha incorretos.");
+        else if (msg.includes("Email not confirmed")) setError("E-mail não confirmado. Verifique sua caixa de entrada ou reenvie o link abaixo.");
+        else setError(msg);
+      } else onClose();
 
     } else if (mode === "signup") {
       if (!name.trim()) { setError("Digite seu nome."); setLoading(false); return; }
@@ -107,6 +112,18 @@ export default function AuthModal({ onClose }) {
                       Esqueci minha senha
                     </button>
                   </span>
+                  {email && (
+                    <span>
+                      <button onClick={async () => {
+                        await supabase.auth.resend({ type: "signup", email });
+                        setDoneMsg("Reenviamos o link de confirmação para");
+                        setDone(true);
+                      }}
+                        style={{ background: "none", border: "none", color: "var(--t3)", cursor: "pointer", padding: 0, fontSize: 13 }}>
+                        Reenviar e-mail de confirmação
+                      </button>
+                    </span>
+                  )}
                 </>
               )}
               {mode === "signup" && (
